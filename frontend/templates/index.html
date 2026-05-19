@@ -1,0 +1,587 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Resume Analyser</title>
+<link rel="icon" type="image/png" href="/static/favicon.png">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --navy: #1B3A6B; --steel: #4A6FA5; --light-blue: #EAF1FB;
+    --dark: #1A1A1A; --mid: #555; --muted: #888;
+    --bg: #F7F8FA; --surface: #fff; --border: #E2E6ED;
+    --success-bg: #EAF5EE; --success: #2A7A47;
+    --warn-bg: #FEF6E7; --warn: #8A5A00;
+    --danger-bg: #FDECEC; --danger: #A32D2D;
+    --radius: 8px; --radius-lg: 12px;
+  }
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; font-size: 14px; background: var(--bg); color: var(--dark); line-height: 1.6; }
+  
+  /* Layout */
+  .app-shell { display: flex; flex-direction: column; min-height: 100vh; }
+  header { background: var(--navy); color: #fff; padding: 0 28px; display: flex; align-items: center; gap: 12px; height: 52px; }
+  header h1 { font-size: 16px; font-weight: 500; letter-spacing: 0.02em; }
+  header .subtitle { font-size: 12px; opacity: 0.6; margin-left: 4px; }
+  .main { display: flex; flex: 1; }
+  nav { width: 200px; flex-shrink: 0; background: var(--surface); border-right: 1px solid var(--border); padding: 20px 0; }
+  nav a { display: flex; align-items: center; gap: 10px; padding: 10px 20px; font-size: 13px; color: var(--mid); text-decoration: none; cursor: pointer; transition: background 0.1s; border-left: 3px solid transparent; }
+  nav a:hover { background: var(--bg); color: var(--dark); }
+  nav a.active { color: var(--navy); font-weight: 500; border-left-color: var(--navy); background: var(--light-blue); }
+  nav svg { width: 16px; height: 16px; flex-shrink: 0; }
+  .content { flex: 1; padding: 28px; max-width: 900px; }
+  .panel { display: none; }
+  .panel.active { display: block; }
+
+  /* Cards */
+  .card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 20px 24px; margin-bottom: 16px; }
+  .card-title { font-size: 13px; font-weight: 500; color: var(--navy); margin-bottom: 14px; display: flex; align-items: center; gap: 8px; }
+  
+  /* Form elements */
+  label.field-label { display: block; font-size: 11px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 6px; }
+  input[type=text], input[type=url], input[type=date], select, textarea {
+    width: 100%; padding: 8px 12px; border: 1px solid var(--border); border-radius: var(--radius);
+    font-size: 13px; font-family: inherit; background: var(--bg); color: var(--dark);
+    transition: border-color 0.15s; line-height: 1.5;
+  }
+  input:focus, select:focus, textarea:focus { outline: none; border-color: var(--steel); background: #fff; }
+  textarea { resize: vertical; }
+  select { cursor: pointer; }
+  .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  .field { margin-bottom: 14px; }
+  
+  /* Buttons */
+  .btn { display: inline-flex; align-items: center; gap: 6px; padding: 8px 16px; font-size: 13px; font-weight: 500; border-radius: var(--radius); cursor: pointer; transition: all 0.1s; border: 1px solid var(--border); background: var(--surface); color: var(--dark); font-family: inherit; }
+  .btn:hover { background: var(--bg); }
+  .btn:active { transform: scale(0.98); }
+  .btn-primary { background: var(--navy); color: #fff; border-color: var(--navy); }
+  .btn-primary:hover { background: #152f58; }
+  .btn-sm { padding: 5px 12px; font-size: 12px; }
+  .btn-row { display: flex; gap: 10px; margin-bottom: 16px; }
+  .btn svg { width: 14px; height: 14px; }
+
+  /* File drop */
+  .file-drop { border: 2px dashed var(--border); border-radius: var(--radius); padding: 28px; text-align: center; cursor: pointer; color: var(--muted); font-size: 13px; transition: all 0.15s; }
+  .file-drop:hover, .file-drop.drag { border-color: var(--steel); background: var(--light-blue); color: var(--navy); }
+  .file-drop svg { width: 24px; height: 24px; margin-bottom: 8px; display: block; margin-left: auto; margin-right: auto; }
+  .or-divider { display: flex; align-items: center; gap: 10px; color: var(--muted); font-size: 12px; margin: 12px 0; }
+  .or-divider::before, .or-divider::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+
+  /* Progress */
+  .progress-wrap { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 16px 20px; margin-bottom: 16px; display: none; }
+  .progress-row { display: flex; align-items: center; gap: 12px; margin-bottom: 8px; }
+  .spinner { width: 16px; height: 16px; border: 2px solid var(--border); border-top-color: var(--navy); border-radius: 50%; animation: spin 0.7s linear infinite; flex-shrink: 0; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .progress-msg { font-size: 13px; color: var(--mid); }
+  .progress-bar { height: 4px; background: var(--border); border-radius: 2px; overflow: hidden; }
+  .progress-fill { height: 100%; background: var(--navy); border-radius: 2px; transition: width 0.4s ease; width: 0%; }
+
+  /* Scores */
+  .score-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 16px; }
+  .score-card { background: var(--light-blue); border-radius: var(--radius-lg); padding: 16px; text-align: center; }
+  .score-val { font-size: 32px; font-weight: 600; color: var(--navy); line-height: 1; }
+  .score-label { font-size: 11px; color: var(--steel); margin-top: 4px; font-weight: 500; text-transform: uppercase; letter-spacing: 0.04em; }
+  .summary-text { font-size: 13px; color: var(--mid); line-height: 1.7; padding: 14px 16px; background: var(--bg); border-radius: var(--radius); margin-bottom: 16px; border-left: 3px solid var(--steel); }
+
+  /* Match items */
+  .match-section { margin-bottom: 14px; }
+  .match-section-title { font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 8px; display: flex; align-items: center; gap: 6px; }
+  .match-section-title svg { width: 14px; height: 14px; }
+  .t-success { color: var(--success); }
+  .t-warn { color: var(--warn); }
+  .t-danger { color: var(--danger); }
+  .match-item { padding: 10px 14px; border-radius: var(--radius); margin-bottom: 6px; font-size: 13px; line-height: 1.5; }
+  .match-item strong { display: block; margin-bottom: 2px; }
+  .match-item span { font-size: 12px; opacity: 0.85; }
+  .mi-success { background: var(--success-bg); color: var(--success); }
+  .mi-warn { background: var(--warn-bg); color: var(--warn); }
+  .mi-danger { background: var(--danger-bg); color: var(--danger); }
+  .imp-badge { display: inline-block; font-size: 10px; padding: 1px 7px; border-radius: 20px; font-weight: 600; margin-left: 8px; vertical-align: middle; }
+  .imp-high { background: #F7C1C1; color: #791F1F; }
+  .imp-med { background: #FAC775; color: #633806; }
+  .imp-low { background: #C0DD97; color: #27500A; }
+
+  /* Skills tags */
+  .skills-group { margin-bottom: 14px; }
+  .skills-group-label { font-size: 11px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 8px; }
+  .tag { display: inline-block; font-size: 12px; padding: 4px 10px; border-radius: 20px; background: var(--light-blue); color: var(--navy); margin: 3px; border: 1px solid #BDD0EA; }
+
+  /* CV output */
+  .cv-output-box { background: var(--bg); border: 1px solid var(--border); border-radius: var(--radius); padding: 16px; font-size: 12px; line-height: 1.7; white-space: pre-wrap; max-height: 400px; overflow-y: auto; font-family: "Courier New", monospace; color: var(--mid); }
+  .dl-row { display: flex; gap: 8px; margin-bottom: 12px; }
+
+  /* Tracker */
+  .tracker-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
+  .tracker-header h2 { font-size: 15px; font-weight: 500; }
+  .app-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 16px 20px; margin-bottom: 10px; }
+  .app-card-top { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; }
+  .app-card-info { flex: 1; min-width: 0; }
+  .app-role { font-size: 14px; font-weight: 500; margin-bottom: 2px; }
+  .app-meta { font-size: 12px; color: var(--muted); margin-bottom: 8px; }
+  .app-meta a { color: var(--steel); text-decoration: none; }
+  .app-meta a:hover { text-decoration: underline; }
+  .app-notes { font-size: 12px; color: var(--mid); margin-top: 10px; white-space: pre-wrap; line-height: 1.6; padding-top: 10px; border-top: 1px solid var(--border); }
+  .app-actions { display: flex; gap: 6px; flex-shrink: 0; }
+  .status-pill { display: inline-block; font-size: 11px; padding: 3px 10px; border-radius: 20px; font-weight: 600; }
+  .s-applied { background: #DBEAFE; color: #1E40AF; }
+  .s-interview { background: #EDE9FE; color: #5B21B6; }
+  .s-offer { background: #D1FAE5; color: #065F46; }
+  .s-rejected { background: #FEE2E2; color: #991B1B; }
+  .s-no-response { background: #F3F4F6; color: #6B7280; }
+  .s-withdrawn { background: #FEF3C7; color: #92400E; }
+  .empty-state { text-align: center; padding: 60px 24px; color: var(--muted); }
+  .empty-state svg { width: 40px; height: 40px; margin-bottom: 12px; opacity: 0.3; display: block; margin-left: auto; margin-right: auto; }
+  .empty-state p { font-size: 13px; }
+
+  /* Error */
+  .error-box { background: var(--danger-bg); color: var(--danger); border: 1px solid #F09595; border-radius: var(--radius); padding: 12px 16px; font-size: 13px; margin-bottom: 14px; display: none; }
+</style>
+</head>
+<body>
+<div class="app-shell">
+
+<header>
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:20px;height:20px"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14,2 14,8 20,8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10,9 9,9 8,9"/></svg>
+  <h1>Resume Analyser</h1>
+  <span class="subtitle">— AI-powered CV matching &amp; job tracker</span>
+</header>
+
+<div class="main">
+  <nav>
+    <a class="active" onclick="showPanel('analyser', this)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      CV Analyser
+    </a>
+    <a onclick="showPanel('tracker', this)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg>
+      Job Tracker
+    </a>
+  </nav>
+
+  <div class="content">
+
+    <!-- ── ANALYSER PANEL ───────────────────────────────────── -->
+    <div id="panel-analyser" class="panel active">
+
+      <div class="card">
+        <div class="card-title">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14,2 14,8 20,8"/></svg>
+          Step 1 — Your CV
+        </div>
+        <div class="file-drop" id="dropzone" onclick="document.getElementById('file-input').click()" ondragover="event.preventDefault();this.classList.add('drag')" ondragleave="this.classList.remove('drag')" ondrop="handleDrop(event)">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="16,16 12,12 8,16"/><line x1="12" y1="12" x2="12" y2="21"/><path d="M20.39 18.39A5 5 0 0018 9h-1.26A8 8 0 103 16.3"/></svg>
+          Click to upload PDF(s), or drag and drop
+        </div>
+        <input type="file" id="file-input" accept=".pdf" multiple style="display:none" onchange="handleFileInput(event)">
+        <div class="or-divider">or paste text</div>
+        <textarea id="cv-text" rows="7" placeholder="Paste your CV text here…"></textarea>
+      </div>
+
+      <div class="card">
+        <div class="card-title">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+          Step 2 — Job Description
+        </div>
+        <div style="display:flex;gap:10px;margin-bottom:10px">
+          <input type="url" id="jd-url" placeholder="Paste JD URL to auto-fetch…" style="flex:1">
+          <button class="btn btn-sm" onclick="fetchJD()">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="8,17 12,21 16,17"/><line x1="12" y1="12" x2="12" y2="21"/><path d="M20.88 18.09A5 5 0 0018 9h-1.26A8 8 0 103 16.3"/></svg>
+            Fetch
+          </button>
+        </div>
+        <div class="or-divider">or paste text</div>
+        <textarea id="jd-text" rows="7" placeholder="Paste the job description here…"></textarea>
+      </div>
+
+      <div id="error-box" class="error-box"></div>
+
+      <div class="btn-row">
+        <button class="btn btn-primary" onclick="runAnalysis()" style="flex:1">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          Analyse match &amp; reorder CV
+        </button>
+        <button class="btn" onclick="runSkillsScrape()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
+          Scrape skills only
+        </button>
+      </div>
+
+      <div class="progress-wrap" id="progress-wrap">
+        <div class="progress-row">
+          <div class="spinner"></div>
+          <div class="progress-msg" id="progress-msg">Working…</div>
+        </div>
+        <div class="progress-bar"><div class="progress-fill" id="progress-fill"></div></div>
+      </div>
+
+      <div id="results"></div>
+    </div>
+
+    <!-- ── TRACKER PANEL ───────────────────────────────────── -->
+    <div id="panel-tracker" class="panel">
+      <div class="tracker-header">
+        <h2>Job Applications</h2>
+        <button class="btn btn-primary btn-sm" onclick="showForm()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          Add application
+        </button>
+      </div>
+
+      <div id="app-form" class="card" style="display:none">
+        <div class="card-title">New application</div>
+        <div class="grid2">
+          <div class="field"><label class="field-label">Role title *</label><input type="text" id="f-role" placeholder="Senior Product Manager"></div>
+          <div class="field"><label class="field-label">Company *</label><input type="text" id="f-company" placeholder="Nova Credit"></div>
+        </div>
+        <div class="grid2">
+          <div class="field"><label class="field-label">JD URL</label><input type="url" id="f-url" placeholder="https://…"></div>
+          <div class="field"><label class="field-label">Date applied</label><input type="date" id="f-date"></div>
+        </div>
+        <div class="field"><label class="field-label">Status</label>
+          <select id="f-status">
+            <option value="applied">Applied</option>
+            <option value="interview">Interview</option>
+            <option value="offer">Offer</option>
+            <option value="rejected">Rejected</option>
+            <option value="no-response">No response</option>
+            <option value="withdrawn">Withdrawn</option>
+          </select>
+        </div>
+        <div class="field"><label class="field-label">Notes</label><textarea id="f-notes" rows="3" placeholder="Interview notes, contacts, feedback…"></textarea></div>
+        <div style="display:flex;gap:8px">
+          <button class="btn btn-primary btn-sm" onclick="saveApp()">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20,6 9,17 4,12"/></svg>
+            Save
+          </button>
+          <button class="btn btn-sm" onclick="cancelForm()">Cancel</button>
+        </div>
+      </div>
+
+      <div id="app-list"></div>
+    </div>
+
+  </div>
+</div>
+</div>
+
+<script>
+let editingId = null;
+let cvHtml = '', cvMd = '';
+
+function showPanel(name, el) {
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('nav a').forEach(a => a.classList.remove('active'));
+  document.getElementById('panel-' + name).classList.add('active');
+  el.classList.add('active');
+  if (name === 'tracker') loadApps();
+}
+
+function showError(msg) {
+  const el = document.getElementById('error-box');
+  el.textContent = msg;
+  el.style.display = 'block';
+  setTimeout(() => el.style.display = 'none', 8000);
+}
+
+function setProgress(show, msg='', pct=0) {
+  document.getElementById('progress-wrap').style.display = show ? 'block' : 'none';
+  if (msg) document.getElementById('progress-msg').textContent = msg;
+  document.getElementById('progress-fill').style.width = pct + '%';
+}
+
+async function post(url, body) {
+  const fd = new FormData();
+  for (const [k,v] of Object.entries(body)) fd.append(k, v);
+  const res = await fetch(url, { method: 'POST', body: fd });
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({detail: 'Server error'}));
+    throw new Error(err.detail || 'Request failed');
+  }
+  return res.json();
+}
+
+async function postBlob(url, body) {
+  const fd = new FormData();
+  for (const [k,v] of Object.entries(body)) fd.append(k, v);
+  const res = await fetch(url, { method: 'POST', body: fd });
+  if (!res.ok) throw new Error('Download failed');
+  return res.blob();
+}
+
+// ── File handling ─────────────────────────────────────────────────────────────
+
+async function handleFileInput(e) {
+  await uploadFiles(Array.from(e.target.files));
+}
+async function handleDrop(e) {
+  e.preventDefault();
+  document.getElementById('dropzone').classList.remove('drag');
+  await uploadFiles(Array.from(e.dataTransfer.files).filter(f => f.type === 'application/pdf'));
+}
+
+async function uploadFiles(files) {
+  if (!files.length) return;
+  const dz = document.getElementById('dropzone');
+  dz.textContent = 'Extracting text…';
+  setProgress(true, 'Extracting PDF text…', 20);
+  try {
+    const fd = new FormData();
+    files.forEach(f => fd.append('files', f));
+    const res = await fetch('/api/extract-pdf', { method: 'POST', body: fd });
+    const data = await res.json();
+    document.getElementById('cv-text').value = data.text;
+    dz.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:24px;height:24px;margin-bottom:8px;display:block;margin-left:auto;margin-right:auto"><polyline points="20,6 9,17 4,12"/></svg>${files.length} file${files.length > 1 ? 's' : ''} extracted`;
+    setProgress(false);
+  } catch(e) {
+    showError('PDF extraction failed: ' + e.message);
+    dz.textContent = 'Click to upload PDF(s), or drag and drop';
+    setProgress(false);
+  }
+}
+
+// ── JD fetch ──────────────────────────────────────────────────────────────────
+
+async function fetchJD() {
+  const url = document.getElementById('jd-url').value.trim();
+  if (!url) return;
+  setProgress(true, 'Fetching job description…', 25);
+  try {
+    const data = await post('/api/fetch-jd', { url });
+    document.getElementById('jd-text').value = data.text;
+    setProgress(false);
+  } catch(e) {
+    showError('Could not fetch URL — please paste the JD text manually. (' + e.message + ')');
+    setProgress(false);
+  }
+}
+
+// ── Skills scrape ─────────────────────────────────────────────────────────────
+
+async function runSkillsScrape() {
+  const cv = document.getElementById('cv-text').value.trim();
+  if (!cv) { showError('Please add your CV text first.'); return; }
+  document.getElementById('error-box').style.display = 'none';
+  setProgress(true, 'Extracting skills and capabilities…', 40);
+  try {
+    const data = await post('/api/scrape-skills', { cv_text: cv });
+    setProgress(false);
+    document.getElementById('results').innerHTML = renderSkills(data);
+  } catch(e) {
+    setProgress(false);
+    showError('Skills extraction failed: ' + e.message);
+  }
+}
+
+function renderSkills(data) {
+  return `<div class="card">
+    <div class="card-title">Skills &amp; capabilities extracted</div>
+    ${data.categories.map(c => `
+      <div class="skills-group">
+        <div class="skills-group-label">${c.name}</div>
+        <div>${c.skills.map(s => `<span class="tag">${s}</span>`).join('')}</div>
+      </div>`).join('')}
+  </div>`;
+}
+
+// ── Full analysis ─────────────────────────────────────────────────────────────
+
+async function runAnalysis() {
+  const cv = document.getElementById('cv-text').value.trim();
+  const jd = document.getElementById('jd-text').value.trim();
+  if (!cv) { showError('Please add your CV text first.'); return; }
+  if (!jd) { showError('Please add the job description first.'); return; }
+  document.getElementById('error-box').style.display = 'none';
+  document.getElementById('results').innerHTML = '';
+  cvHtml = ''; cvMd = '';
+
+  try {
+    setProgress(true, 'Analysing match against job description…', 20);
+    const analysis = await post('/api/analyse', { cv_text: cv, jd_text: jd });
+
+    setProgress(true, 'Reordering experience bullets…', 60);
+    const reordered = await post('/api/reorder-cv', { cv_text: cv, jd_text: jd });
+    cvHtml = reordered.html || '';
+    cvMd = reordered.markdown || '';
+
+    setProgress(false);
+    document.getElementById('results').innerHTML = renderAnalysis(analysis, cvMd);
+  } catch(e) {
+    setProgress(false);
+    showError('Analysis failed: ' + e.message);
+  }
+}
+
+function impBadge(imp) {
+  if (imp === 'high') return '<span class="imp-badge imp-high">High</span>';
+  if (imp === 'medium') return '<span class="imp-badge imp-med">Medium</span>';
+  return '<span class="imp-badge imp-low">Low</span>';
+}
+
+function renderAnalysis(a, md) {
+  const matchItems = (arr, cls, keyProp, subProp) =>
+    arr.map(m => `<div class="match-item ${cls}"><strong>${m.item}${impBadge(m.importance)}</strong><span>${m[keyProp]}</span></div>`).join('') ||
+    `<div style="font-size:12px;opacity:0.7;padding:8px 0">None identified</div>`;
+
+  return `
+    <div class="score-grid">
+      <div class="score-card"><div class="score-val">${a.overall_score}</div><div class="score-label">Overall match</div></div>
+      <div class="score-card"><div class="score-val">${a.keyword_score}</div><div class="score-label">Keyword match</div></div>
+      <div class="score-card"><div class="score-val">${a.experience_score}</div><div class="score-label">Experience match</div></div>
+    </div>
+    ${a.summary ? `<div class="summary-text">${a.summary}</div>` : ''}
+    <div class="card">
+      <div class="match-section">
+        <div class="match-section-title t-success">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><polyline points="22,4 12,14.01 9,11.01"/></svg>
+          Strong matches
+        </div>
+        ${matchItems(a.matches || [], 'mi-success', 'evidence', 'evidence')}
+      </div>
+      <div class="match-section">
+        <div class="match-section-title t-warn">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+          Partial matches
+        </div>
+        ${matchItems(a.partials || [], 'mi-warn', 'gap', 'gap')}
+      </div>
+      <div class="match-section">
+        <div class="match-section-title t-danger">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
+          Gaps
+        </div>
+        ${matchItems(a.gaps || [], 'mi-danger', 'reason', 'reason')}
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title">Reordered CV preview</div>
+      <div class="dl-row">
+        <button class="btn btn-sm" onclick="downloadHTML()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7,10 12,15 17,10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          Download HTML
+        </button>
+        <button class="btn btn-sm" onclick="downloadMD()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7,10 12,15 17,10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          Download Markdown
+        </button>
+        <button class="btn btn-sm btn-primary" onclick="downloadDOCX()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7,10 12,15 17,10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          Download .docx
+        </button>
+      </div>
+      <div class="cv-output-box">${(md || '').substring(0, 2500)}${md && md.length > 2500 ? '\n\n…(truncated — download for full version)' : ''}</div>
+    </div>`;
+}
+
+function downloadHTML() {
+  if (!cvHtml) { showError('Run analysis first.'); return; }
+  triggerDownload(cvHtml, 'resume_tailored.html', 'text/html');
+}
+function downloadMD() {
+  if (!cvMd) { showError('Run analysis first.'); return; }
+  triggerDownload(cvMd, 'resume_tailored.md', 'text/markdown');
+}
+async function downloadDOCX() {
+  const cv = document.getElementById('cv-text').value.trim();
+  const jd = document.getElementById('jd-text').value.trim();
+  if (!cv || !jd) { showError('CV and JD are required for .docx generation.'); return; }
+  setProgress(true, 'Generating .docx…', 50);
+  try {
+    const blob = await postBlob('/api/download-docx', { cv_text: cv, jd_text: jd });
+    triggerDownload(blob, 'resume_tailored.docx', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document');
+    setProgress(false);
+  } catch(e) {
+    setProgress(false);
+    showError('DOCX generation failed: ' + e.message);
+  }
+}
+
+function triggerDownload(content, filename, type) {
+  const blob = content instanceof Blob ? content : new Blob([content], {type});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = filename;
+  a.click();
+}
+
+// ── Job Tracker ───────────────────────────────────────────────────────────────
+
+const STATUS_LABELS = { applied:'Applied', interview:'Interview', offer:'Offer', rejected:'Rejected', 'no-response':'No response', withdrawn:'Withdrawn' };
+const STATUS_CLASSES = { applied:'s-applied', interview:'s-interview', offer:'s-offer', rejected:'s-rejected', 'no-response':'s-no-response', withdrawn:'s-withdrawn' };
+
+async function loadApps() {
+  const res = await fetch('/api/applications');
+  const apps = await res.json();
+  const el = document.getElementById('app-list');
+  if (!apps.length) {
+    el.innerHTML = `<div class="empty-state">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg>
+      <p>No applications yet. Add your first one above.</p>
+    </div>`;
+    return;
+  }
+  el.innerHTML = apps.map(a => `
+    <div class="app-card">
+      <div class="app-card-top">
+        <div class="app-card-info">
+          <div class="app-role">${a.role}</div>
+          <div class="app-meta">${a.company}${a.date_applied ? ' · ' + a.date_applied : ''}${a.jd_url ? ` · <a href="${a.jd_url}" target="_blank">View JD ↗</a>` : ''}</div>
+          <span class="status-pill ${STATUS_CLASSES[a.status] || 's-no-response'}">${STATUS_LABELS[a.status] || a.status}</span>
+          ${a.notes ? `<div class="app-notes">${a.notes}</div>` : ''}
+        </div>
+        <div class="app-actions">
+          <button class="btn btn-sm" onclick="editApp('${a.id}', ${JSON.stringify(a).replace(/"/g,'&quot;')})">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+          </button>
+          <button class="btn btn-sm" onclick="deleteApp('${a.id}')">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3,6 5,6 21,6"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4h6v2"/></svg>
+          </button>
+        </div>
+      </div>
+    </div>`).join('');
+}
+
+function showForm() {
+  editingId = null;
+  document.getElementById('f-role').value = '';
+  document.getElementById('f-company').value = '';
+  document.getElementById('f-url').value = '';
+  document.getElementById('f-date').value = new Date().toISOString().split('T')[0];
+  document.getElementById('f-status').value = 'applied';
+  document.getElementById('f-notes').value = '';
+  document.getElementById('app-form').style.display = 'block';
+}
+
+function editApp(id, data) {
+  editingId = id;
+  document.getElementById('f-role').value = data.role || '';
+  document.getElementById('f-company').value = data.company || '';
+  document.getElementById('f-url').value = data.jd_url || '';
+  document.getElementById('f-date').value = data.date_applied || '';
+  document.getElementById('f-status').value = data.status || 'applied';
+  document.getElementById('f-notes').value = data.notes || '';
+  document.getElementById('app-form').style.display = 'block';
+  document.getElementById('app-form').scrollIntoView({behavior:'smooth'});
+}
+
+function cancelForm() { document.getElementById('app-form').style.display = 'none'; editingId = null; }
+
+async function saveApp() {
+  const role = document.getElementById('f-role').value.trim();
+  const company = document.getElementById('f-company').value.trim();
+  if (!role || !company) { alert('Role and company are required.'); return; }
+  const body = { role, company, jd_url: document.getElementById('f-url').value.trim(), date_applied: document.getElementById('f-date').value, status: document.getElementById('f-status').value, notes: document.getElementById('f-notes').value.trim() };
+  const url = editingId ? `/api/applications/${editingId}` : '/api/applications';
+  const method = editingId ? 'PUT' : 'POST';
+  await fetch(url, { method, headers: {'Content-Type':'application/json'}, body: JSON.stringify(body) });
+  cancelForm();
+  loadApps();
+}
+
+async function deleteApp(id) {
+  if (!confirm('Remove this application?')) return;
+  await fetch(`/api/applications/${id}`, { method: 'DELETE' });
+  loadApps();
+}
+</script>
+</body>
+</html>
