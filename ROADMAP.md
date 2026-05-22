@@ -75,6 +75,11 @@ v2 will score these separately:
 
 This matters because ATS systems weight the summary heavily for keyword matching, while human recruiters weight the experience heavily for credibility. Showing both scores separately gives the user a clearer picture of where they stand with each audience.
 
+**Semantic similarity engine:**
+Scoring uses [FastEmbed](https://github.com/qdrant/fastembed) for local semantic similarity matching – comparing the meaning of CV sections against JD requirements rather than counting keywords. This catches conceptual matches that keyword frequency would miss (e.g. "owned data pipeline infrastructure" matching "platform infrastructure ownership") and produces consistent, reproducible scores without any API call.
+
+FastEmbed was chosen over the more widely-used `sentence-transformers` library for v2 because it has a significantly smaller footprint (~50MB model vs 80MB+ model + 200MB–2GB torch dependency). If FastEmbed proves insufficient for later use cases – particularly if GPU-accelerated inference becomes relevant – migrating to `sentence-transformers` with PyTorch is a straightforward swap and will be evaluated for v3+.
+
 **No new database tables required for v2.** All scoring is in-memory. The database work comes in v3.
 
 ---

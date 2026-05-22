@@ -3,8 +3,6 @@ echo.
 echo  Resume Analyser
 echo  ---------------
 echo.
-%~d0
-cd %~dp0
 
 :: Check .env exists
 if not exist .env (
@@ -33,4 +31,3 @@ echo  Press Ctrl+C to stop
 echo.
 
 uvicorn main:app --reload
-pause

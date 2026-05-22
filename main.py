@@ -124,6 +124,35 @@ async def api_download_docx(cv_text: str = Form(...), jd_text: str = Form(...)):
         raise HTTPException(status_code=500, detail=str(e))
 
 
+# ── v2 Semantic scoring endpoints ─────────────────────────────────────────────
+
+@app.post("/api/semantic-score")
+async def api_semantic_score(cv_text: str = Form(...), jd_text: str = Form(...)):
+    try:
+        from backend.semantic_scorer import score_cv_semantic
+        result = score_cv_semantic(cv_text, jd_text)
+        return result
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.post("/api/classify-gaps")
+async def api_classify_gaps(
+    cv_text: str = Form(...),
+    jd_text: str = Form(...),
+    gaps_json: str = Form(...),
+    current_score: int = Form(...)
+):
+    try:
+        import json
+        from backend.gap_classifier import classify_gaps
+        gaps = json.loads(gaps_json)
+        result = classify_gaps(cv_text, jd_text, gaps, current_score)
+        return result
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
 # ── Job Tracker endpoints ──────────────────────────────────────────────────────
 
 class ApplicationCreate(BaseModel):

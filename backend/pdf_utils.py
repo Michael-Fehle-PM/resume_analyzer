@@ -1,13 +1,12 @@
-import pdfplumber
-from io import BytesIO
+import fitz  # pymupdf
 
 
 def extract_text_from_pdf(file_bytes: bytes) -> str:
     text_parts = []
-    with pdfplumber.open(BytesIO(file_bytes)) as pdf:
-        for page in pdf.pages:
-            text = page.extract_text()
-            if text:
+    with fitz.open(stream=file_bytes, filetype="pdf") as doc:
+        for page in doc:
+            text = page.get_text("text")
+            if text.strip():
                 text_parts.append(text.strip())
     return "\n\n".join(text_parts)
 
