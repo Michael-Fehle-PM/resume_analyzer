@@ -34,12 +34,18 @@ def classify_gaps(
     Sends only the gap list to Claude – not the full CV/JD – to minimise token usage.
     """
     if not gaps:
+        if current_score >= 78:
+            recommendation = "Strong semantic match – proceed with optimisation."
+        elif current_score >= 65:
+            recommendation = "Moderate match with no specific gaps identified – likely a diffuse domain vocabulary mismatch rather than missing skills. Review the JD vocabulary and consider mirroring key terms more explicitly."
+        else:
+            recommendation = "Low match with no specific gaps identified – the domain vocabulary may be too distant for effective optimisation. Consider whether this role is a strong fit."
         return {
             "classified_gaps": [],
             "predicted_score": current_score,
             "addressable_count": 0,
             "structural_count": 0,
-            "recommendation": "Strong match – proceed with optimisation.",
+            "recommendation": recommendation,
         }
 
     gap_list = "\n".join([f"- {g['requirement']}" for g in gaps[:15]])

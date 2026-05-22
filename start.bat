@@ -3,6 +3,8 @@ echo.
 echo  Resume Analyser
 echo  ---------------
 echo.
+%~d0
+cd %~dp0
 
 :: Check .env exists
 if not exist .env (
@@ -14,8 +16,8 @@ if not exist .env (
 )
 
 :: Activate virtual environment
-if exist .venv\Scripts\activate.bat (
-    call .venv\Scripts\activate.bat
+if exist .venv312\Scripts\activate.bat (
+    call .venv312\Scripts\activate.bat
 ) else (
     echo  ERROR: Virtual environment not found.
     echo  Run: python -m venv .venv
@@ -31,3 +33,4 @@ echo  Press Ctrl+C to stop
 echo.
 
 uvicorn main:app --reload
+pause

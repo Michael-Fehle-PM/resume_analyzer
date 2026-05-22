@@ -122,8 +122,8 @@ def _split_cv_sections(cv_text: str) -> dict[str, str]:
 def _score_section_against_requirements(
     section_text: str,
     requirements: list[str],
-    threshold_strong: float = 0.75,
-    threshold_partial: float = 0.55,
+    threshold_strong: float = 0.72,
+    threshold_partial: float = 0.62,
 ) -> dict:
     """
     Score a CV section against a list of requirements.

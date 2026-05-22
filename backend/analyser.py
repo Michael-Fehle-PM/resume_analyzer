@@ -4,7 +4,7 @@ import re
 
 
 client = anthropic.Anthropic()
-MODEL = "claude-sonnet-4-20250514"
+MODEL = "claude-sonnet-4-6"
 
 
 def clean_json(raw: str) -> str:
@@ -22,10 +22,11 @@ CV TEXT:
 
     message = client.messages.create(
         model=MODEL,
-        max_tokens=1000,
+        max_tokens=4096,
         messages=[{"role": "user", "content": prompt}]
     )
     raw = message.content[0].text
+    print("DEBUG analyse_match response:", raw[:500])
     return json.loads(clean_json(raw))
 
 
@@ -41,6 +42,7 @@ Analyse this CV against the job description and return ONLY a JSON object with t
   "gaps": [{{"item": "description", "reason": "why it is a gap", "importance": "high|medium|low"}}],
   "summary": "2-3 sentence overall assessment"
 }}
+Limit matches, partials, and gaps to 5 items each maximum. Keep all strings under 100 characters.
 Return ONLY the JSON, no markdown, no preamble.
 
 JOB DESCRIPTION:
@@ -51,7 +53,7 @@ CV:
 
     message = client.messages.create(
         model=MODEL,
-        max_tokens=1000,
+        max_tokens=4096,
         messages=[{"role": "user", "content": prompt}]
     )
     raw = message.content[0].text
@@ -59,15 +61,7 @@ CV:
 
 
 def reorder_cv(cv_text: str, jd_text: str) -> dict:
-    prompt = f"""You are an expert CV writer. Rewrite the CV below with experience bullets reordered within each role
-so the most relevant to the job description appear first. Do not add, invent, or remove any experience —
-only reorder bullets within each existing role. Keep all other sections unchanged.
-
-Return ONLY a JSON object with two keys:
-- "html": a complete, self-contained, print-ready HTML CV with clean professional styling, navy and white colour scheme, no external dependencies, suitable for printing to PDF
-- "markdown": the same CV as clean markdown
-
-No preamble, no markdown fences around the JSON itself.
+    base_prompt = f"""You are an expert CV writer. Rewrite the CV below with experience bullets reordered within each role so the most relevant to the job description appear first. Do not add, invent, or remove any experience — only reorder bullets within each existing role. Keep all other sections unchanged. Keep bullet points to 20 words maximum.
 
 JOB DESCRIPTION:
 {jd_text}
@@ -75,13 +69,23 @@ JOB DESCRIPTION:
 CV:
 {cv_text}"""
 
-    message = client.messages.create(
+    # Call 1 – Markdown
+    md_message = client.messages.create(
         model=MODEL,
-        max_tokens=1000,
-        messages=[{"role": "user", "content": prompt}]
+        max_tokens=4096,
+        messages=[{"role": "user", "content": base_prompt + "\n\nReturn ONLY the reordered CV as clean markdown. No preamble, no explanation."}]
     )
-    raw = message.content[0].text
-    return json.loads(clean_json(raw))
+    markdown = md_message.content[0].text.strip()
+
+    # Call 2 – HTML
+    html_message = client.messages.create(
+        model=MODEL,
+        max_tokens=4096,
+        messages=[{"role": "user", "content": base_prompt + "\n\nReturn ONLY a complete, self-contained, print-ready HTML CV with clean professional styling, navy and white colour scheme, no external dependencies. No preamble, no explanation, just the HTML."}]
+    )
+    html = html_message.content[0].text.strip()
+
+    return {"html": html, "markdown": markdown}
 
 
 def generate_docx(cv_text: str, jd_text: str) -> bytes:
