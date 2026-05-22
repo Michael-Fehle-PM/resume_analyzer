@@ -3,7 +3,7 @@
 Add screenshots of the running app here. The README references:
 
 - `scoring_output_v1.jpg` — the CV Analyser tab showing scores and match results
-- `tracker.png` — the Job Tracker tab with sample applications
+- `application_tracker_v1.png` — the Job Tracker tab with sample applications
 
 To capture them:
 1. Run the app locally (`uvicorn main:app --reload`)
