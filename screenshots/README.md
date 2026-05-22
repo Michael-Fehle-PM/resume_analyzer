@@ -2,7 +2,7 @@
 
 Add screenshots of the running app here. The README references:
 
-- `analyser.png` — the CV Analyser tab showing scores and match results
+- `scoring_output_v1.jpg` — the CV Analyser tab showing scores and match results
 - `tracker.png` — the Job Tracker tab with sample applications
 
 To capture them:
