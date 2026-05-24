@@ -1,202 +1,174 @@
-# Resume Analyser
+# Roadmap
 
-A personal tool I built to solve a real problem: the tedious, repetitive work of tailoring a CV to each job application.
+This document captures the planned development of the Resume Analyser. It's intentionally public — partly for transparency, and partly because a PM who can't articulate a roadmap probably shouldn't be building product tools.
 
-As a product manager in active job search, I found myself manually cross-referencing job descriptions, reordering bullet points, and trying to guess how well my experience matched what a recruiter's ATS system was looking for. So I built a tool to do that analytical work for me — freeing up time to focus on the parts that actually require human judgement.
-
-![Resume Analyser screenshot](screenshots/analyser.png)
+The sequencing follows a simple principle: find the smallest thing that adds real value, ship it, then find the next smallest. Each version has a theme. Features that don't serve that theme wait for a later version, however tempting they are.
 
 ---
 
-## The problem
+## What we learned from v1
 
-Job searching PMs face a specific workflow problem:
+No plan survives first contact with users — even when the user is yourself.
 
-- Every application ideally needs a tailored CV with the most relevant experience surfaced first
-- ATS systems screen out candidates before a human ever reads the CV
-- Manually reordering bullets and cross-referencing JDs is time-consuming and inconsistent
-- Tracking applications, interview notes, and follow-ups across a job search is scattered and fragile
+v1 shipped with a Claude-based scoring system that produces directionally useful results but isn't reproducible. Run the same CV against the same JD twice and you'll get slightly different scores. That's a problem for a tool whose core value proposition is telling you whether your CV is good enough to clear an ATS filter. You can't act confidently on a number you can't trust.
 
-Most tools solve one of these. This solves all of them in one place.
+v1 also does all the optimisation work upfront — reordering bullets, generating HTML and Markdown output — before the user knows whether the effort is worth it. For a role where the gaps are structural and unfillable, that's wasted API spend and wasted time.
 
----
-
-## What it does
-
-### CV Analyser
-- Upload one or more CVs as PDF (server-side text extraction)
-- Paste or auto-fetch a job description by URL
-- AI-powered match analysis returns:
-  - Three scores: overall match, keyword match, experience match
-  - Categorised **matches**, **partial matches**, and **gaps** — each rated by importance
-  - A plain-English summary assessment
-- Reorders experience bullets within each role so the most JD-relevant appear first
-- Exports the reordered CV as **HTML** (print-to-PDF ready), **Markdown**, or **.docx**
-
-### Job Tracker
-- Log applications with role, company, JD URL, date, and status
-- Six status options: Applied, Interview, Offer, Rejected, No response, Withdrawn
-- Add and update interview notes and feedback
-- Full edit and delete
-- Data persists locally via SQLite — no cloud, no account, no data sharing
-
-![Job Tracker screenshot](screenshots/tracker.png)
+These aren't bugs. They're the kind of things you only discover by using the tool on real applications, against real job descriptions, under real conditions. v2 fixes them.
 
 ---
 
-## Product decisions worth noting
+## v1 — Ship something useful
+*Status: complete*
 
-**Why a webapp rather than a script?**
-A CLI tool would have been faster to build, but the insight/action loop — upload CV, read analysis, download reordered output — is inherently visual. A UI makes the workflow faster and the output more immediately usable.
+A working CV analyser and job tracker. Upload a CV, paste a JD, get a scored match analysis with matches, partials, and gaps. Download a reordered CV. Track applications in a persistent local database.
 
-**Why server-side rather than client-side API calls?**
-Browser-based API calls expose keys and are blocked by CORS on most job boards. Server-side calls solve both problems and allow proper PDF extraction, which the browser can't do reliably.
+**What it does well:**
+- End-to-end workflow from CV upload to reordered output
+- Qualitative gap analysis with importance ratings
+- Job tracker with persistent SQLite storage
+- Server-side PDF extraction, JD fetching, and .docx generation
 
-**Why SQLite?**
-For a personal tool running locally, SQLite is zero-config and perfectly sufficient. The schema and ORM layer (SQLAlchemy) mean it's a one-line change to switch to Postgres if the tool were ever hosted or multi-user.
-
-**Why both HTML and Markdown output?**
-Different users have different next steps. HTML is immediately printable to PDF. Markdown drops cleanly into Word via Pandoc or Google Docs for users who want to polish the formatting before sending.
-
----
-
-## Tech stack
-
-| Layer | Technology |
-|---|---|
-| Backend | Python, FastAPI |
-| AI | Anthropic Claude API (claude-sonnet-4-6) |
-| PDF extraction | pdfplumber |
-| Database | SQLite via SQLAlchemy |
-| .docx generation | python-docx |
-| HTTP client | httpx |
-| Frontend | Plain HTML, CSS, JavaScript (no framework) |
+**What it doesn't do well:**
+- Scores aren't reproducible or fully explainable
+- No way to assess fit before committing to the full analysis
+- Gap classification is binary — present or absent — with no nuance about *why* something is a gap or whether it's fixable
 
 ---
 
-## Requirements
+## v2 — Make the scores trustworthy
+*Status: complete*
 
-- Python 3.10+
-- An [Anthropic API key](https://console.anthropic.com/)
+The theme for v2 is trust. A score you can't explain is a score you can't act on.
 
-> **Important:** Each user must supply their own Anthropic API key. The key is stored locally in a `.env` file that is git-ignored and never committed. It is never shared, logged, or transmitted anywhere other than directly to the Anthropic API.
->
-> Anthropic API usage is pay-as-you-go. A typical analysis costs approximately $0.02–0.05. You can set a spend cap in the [Anthropic console](https://console.anthropic.com/) to avoid surprises. A $5 credit covers 100–250 analyses.
+**Local ATS simulation:**
+Real ATS systems don't have opinions — they count. v2 adds a keyword-frequency scoring engine that runs entirely locally, with no API call and no variability. Same inputs, same score, every time. The score is explainable because it's derived from a defined algorithm: which keywords appear in the JD, how prominently, and whether they appear in the CV.
 
----
+**Three scoring modes:**
+- *ATS Simulation* — local keyword matching; fast, free, reproducible
+- *Recruiter View* — Claude-based qualitative assessment; the current v1 approach
+- *Combined* — weighted composite of both
 
-## Setup
+Showing all three simultaneously is deliberate. Where they agree, confidence is high. Where they diverge — high ATS score but low recruiter score, for example — that's a signal worth investigating. It might mean the CV is keyword-optimised but thin on substance, or well-written but missing the right vocabulary.
 
-### 1. Clone the repo
+**Before/after analysis:**
+Before any optimisation work happens, v2 will show a baseline score on the raw CV and a predicted score after optimisation. The user sees the delta — *"this could move from 68% to 84%, here's what to change"* — and decides whether the effort is worth it before any API spend is committed. For roles where the gaps are structural, this saves time and money. For roles where the fit is strong, it gives the user confidence to proceed.
 
-```bash
-git clone https://github.com/YOUR_USERNAME/resume-analyser.git
-cd resume-analyser
-```
+**Richer gap classification:**
+v1 flags gaps. v2 explains them. Each gap will be typed:
 
-### 2. Create a virtual environment
+- *Structural* — the skill or experience doesn't exist in your background; no amount of reframing will close this gap
+- *Domain transfer* — you have the underlying skill but not in the domain the JD requires; addressable with the right framing
+- *Keyword gap* — the experience exists but the vocabulary doesn't match; addressable with targeted rewording
+- *Seniority gap* — the skill is present but at the wrong level; partially addressable depending on the size of the gap
 
-```bash
-python -m venv .venv
-source .venv/bin/activate        # macOS / Linux
-.venv\Scripts\activate           # Windows
-```
+The distinction between structural and addressable gaps is the most important thing the tool can communicate. It's the difference between "don't apply" and "apply but reframe this."
 
-### 3. Install dependencies
+**Split scoring – Summary vs Professional Experience:**
+A CV summary can claim almost anything. "Experienced platform PM with a track record of delivery" costs nothing to write. The proof is in the Professional Experience section – have you actually done this, in a real role, with measurable outcomes?
 
-```bash
-pip install -r requirements.txt
-```
+v2 will score these separately:
 
-> If any packages fail on Python 3.14 (wheels not yet published for the newest release), try Python 3.12 instead:
-> ```bash
-> python3.12 -m venv .venv
-> ```
+- *Summary score* – how well the summary's claims align with the JD requirements
+- *Experience score* – how well the Professional Experience section evidences those claims
+- *Credibility gap* – the delta between the two; a high summary score but low experience score is a yellow flag; it suggests the CV is making promises the experience doesn't keep
 
-### 4. Add your API key
+This matters because ATS systems weight the summary heavily for keyword matching, while human recruiters weight the experience heavily for credibility. Showing both scores separately gives the user a clearer picture of where they stand with each audience.
 
-```bash
-cp .env.example .env
-```
+**Semantic similarity engine:**
+Scoring uses [FastEmbed](https://github.com/qdrant/fastembed) for local semantic similarity matching – comparing the meaning of CV sections against JD requirements rather than counting keywords. This catches conceptual matches that keyword frequency would miss (e.g. "owned data pipeline infrastructure" matching "platform infrastructure ownership") and produces consistent, reproducible scores without any API call.
 
-Open `.env` and replace `your_api_key_here` with your Anthropic API key:
+FastEmbed was chosen over the more widely-used `sentence-transformers` library for v2 because it has a significantly smaller footprint (~50MB model vs 80MB+ model + 200MB–2GB torch dependency). If FastEmbed proves insufficient for later use cases – particularly if GPU-accelerated inference becomes relevant – migrating to `sentence-transformers` with PyTorch is a straightforward swap and will be evaluated for v3+.
 
-```
-ANTHROPIC_API_KEY=sk-ant-...
-DATABASE_URL=sqlite:///./resumeapp.db
-```
-
-### 5. Run
-
-```bash
-uvicorn main:app --reload
-```
-
-Open [http://localhost:8000](http://localhost:8000).
+**No new database tables required for v2.** All scoring is in-memory. The database work comes in v3.
 
 ---
 
-## Project structure
+## v2.1 — Boilerplate filtering
+*Status: complete*
 
-```
-resume-analyser/
-├── main.py                    # FastAPI app and all routes
-├── backend/
-│   ├── analyser.py            # Claude API calls — analysis, reorder, skills scrape
-│   ├── pdf_utils.py           # Server-side PDF text extraction
-│   └── database.py            # SQLAlchemy models and DB initialisation
-├── frontend/
-│   ├── templates/
-│   │   └── index.html         # Single-page UI — no framework
-│   └── static/
-│       └── favicon.png
-├── screenshots/               # Add your own screenshots here
-├── requirements.txt
-├── .env.example               # Safe to commit — contains no real credentials
-├── .gitignore                 # Ensures .env and .db are never committed
-└── README.md
-```
+**The problem v2.1 solves:**
+The semantic scoring engine penalises candidates for not matching generic JD filler — phrases like "strong communication skills", "fast-paced environment", "team player", and "competitive benefits" that appear in virtually every job posting and carry no real signal about role fit. When all identified gaps are boilerplate artifacts, a low baseline score is misleadingly pessimistic.
+
+**The fix:**
+A static boilerplate filter runs before requirement extraction, stripping common filler phrases from the JD before scoring. This means the semantic engine only measures match against requirements that actually differentiate the role — producing a more honest and actionable score.
+
+**Implementation:**
+A curated stoplist of ~50-100 common boilerplate phrases in , applied to the extracted requirements before embedding. Transparent, fast, and easy to extend. If the static list proves insufficient, v3 will evaluate a semantic boilerplate detection approach that self-calibrates against a boilerplate template embedding.
+
+**Expected impact:**
+Roles where gaps are predominantly boilerplate artifacts should see baseline scores rise by 10-15 points, bringing them into alignment with the AI Assessment scores and the gap classifier's recommendation.
 
 ---
 
-## Deploying (optional)
+## v3 — Generate supporting materials
+*Status: planned*
 
-The app runs perfectly as a local tool. If you want to access it from anywhere:
+The theme for v3 is output. v1 and v2 do the analytical work — scoring, gap classification, reordering. v3 turns that analysis into the materials the user actually submits: a tailored summary and a cover letter.
 
-1. Push the repo to GitHub
-2. Connect to [Railway](https://railway.app) or [Render](https://render.com) — both detect FastAPI automatically
-3. Set `ANTHROPIC_API_KEY` in the platform's environment variables dashboard
-4. Deploy
+Both are tied to a specific analysis run in v3. The user uploads a CV, runs the analysis, and then generates supporting materials from the results already in context. No separate uploads, no separate flow. Standalone versions — where the Summary Builder and Cover Letter Generator work without a prior analysis — are deferred to v4.
 
-To use Postgres instead of SQLite in production, update `DATABASE_URL`:
-```
-DATABASE_URL=postgresql://user:password@host/dbname
-```
-No code changes required — SQLAlchemy handles the rest.
+**Summary builder:**
+Generates a tailored professional summary drawing from the submitted CV, the JD, and the gap classification results. Shows predicted ATS score impact before the user commits to the wording. Tone and length selectable.
+
+**Cover letter generator:**
+Draws from the submitted CV, JD, and gap classification. Addresses gaps proactively based on gap type — structural gaps handled differently from keyword gaps. Tone and length selectable. The user's personal connection to the role or company can be optionally added.
 
 ---
 
-## Security notes
+## v4 — Make the tool know the user
+*Status: planned*
 
-- The `.env` file is git-ignored and will never be committed
-- The SQLite database file is also git-ignored
-- API keys are passed directly to the Anthropic API and are never logged or stored
-- The app runs locally by default — no data leaves your machine except the CV/JD text sent to the Anthropic API for analysis
+The theme for v4 is personalisation. v1–v3 treat every analysis as stateless. v4 introduces persistent user knowledge.
+
+**Skills bank:**
+A persistent career repository — upload CVs going back as far as you choose, and the bank accumulates every skill and capability you have ever demonstrated. The bank is cumulative; it remembers which CVs have already been processed and does not re-scrape duplicates.
+
+The bank operates on two deliberate principles:
+- *The bank is what you can claim; the CV is where you demonstrated it.* Role boundaries are always respected — skills stay attributed to the role where they were earned.
+- *Visibility rules apply.* The bank may know about roles not on the submitted CV. Those roles inform the confidence of a claim but cannot be cited directly. Only evidence visible on the submitted CV surfaces in output.
+
+The bank also identifies skill threads — capabilities that span multiple roles and deepen over time. Where those roles are visible on the CV, the thread can be referenced. Where they are not, the thread is a confidence signal for the tool, not a claim for the user to make.
+
+**Manual skill entry:**
+Not everything worth claiming appears on a CV. Skills built outside professional work — a language, a qualification, a tool learned independently — belong in the bank too. Manual entries require:
+- Skill name and category
+- Source: professional / non-professional / self-taught
+- Proficiency: expert / proficient / familiar
+- Whether it currently appears on a CV
+
+Non-professional skills surface in the Skills section of the CV only. They are never inserted into Professional Experience. This is not just a design decision — it is an ethical one.
+
+**Gap analysis against the bank:**
+With the bank in place, gap analysis becomes more precise:
+- Skill in bank, on submitted CV → strong match
+- Skill in bank from a different CV version → keyword gap: worth adding to this CV
+- Skill manually added, not on any CV → omission gap: you have this but have not documented it anywhere
+- Skill not in bank at all → structural gap: you genuinely do not have this
+
+**Standalone Summary Builder and Cover Letter Generator:**
+In v3 these tools are tied to a specific analysis run. In v4 they become standalone — drawing from the skills bank directly, without requiring a prior analysis. The user can generate a summary or cover letter for any role at any time.
 
 ---
 
-## Other tools in this repo
+## v4 — Reduce friction
+*Status: ideas*
 
-This repo also contains a set of lightweight data utilities built for similar reasons — tools I needed, built quickly:
+Features that would be useful but don't belong in earlier versions because they're not foundational — they're polish.
 
-- **Messy data parser** — normalises and structures inconsistently formatted input data
-- **Data generator** — generates realistic test datasets for development and QA
-- **Data analyser** — quick statistical profiling of tabular data
-
-These reflect the same philosophy as the resume analyser: identify a friction point, build the minimum useful tool, move on.
+- **Auto-populate tracker** — when an analysis is run, pre-fill a tracker entry with role, company, and JD URL; one click to confirm
+- **Application analytics** — success rate by role type, score distribution over time, response rate by application channel
+- **Skills bank export** — download your skills bank as PDF or Markdown
+- **Multi-user support** — authentication layer enabling the tool to serve more than one user; requires moving from SQLite to Postgres
 
 ---
 
-## Licence
+## What's not on the roadmap
 
-MIT — use it, fork it, improve it.
+A few things were considered and deliberately excluded:
+
+**Automatic CV generation from scratch** — the tool generates a *reordered draft*, not a finished document. The user always owns the final polish. Removing that step would produce CVs that are optimised for ATS but not reviewed by the person whose career they represent. That's not a trade-off worth making.
+
+**Hosted service with shared infrastructure** — running this as a multi-tenant SaaS would require storing users' CV data on a server. A CV contains some of the most sensitive personal and professional data a person has. Until there's a serious security and privacy architecture in place, the tool stays local.
+
+**Integration with job boards** — scraping job boards at scale raises legal and ethical questions that aren't worth navigating for a personal tool. JD fetching by URL is sufficient.
