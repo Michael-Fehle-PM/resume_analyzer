@@ -108,6 +108,8 @@ async def api_reorder_cv(cv_text: str = Form(...), jd_text: str = Form(...)):
         result = reorder_cv(cv_text, jd_text)
         return result
     except Exception as e:
+        import traceback
+        traceback.print_exc()
         raise HTTPException(status_code=500, detail=str(e))
 
 
@@ -148,6 +150,46 @@ async def api_classify_gaps(
         from backend.gap_classifier import classify_gaps
         gaps = json.loads(gaps_json)
         result = classify_gaps(cv_text, jd_text, gaps, current_score)
+        return result
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+# ── v3 Generator endpoints ────────────────────────────────────────────────────
+
+@app.post("/api/build-summary")
+async def api_build_summary(
+    reordered_cv: str = Form(...),
+    jd_text: str = Form(...),
+    gap_classification_json: str = Form(...),
+    tone: str = Form(default="professional"),
+    existing_summary: str = Form(default=""),
+):
+    try:
+        import json as _json
+        from backend.generators import build_summary
+        gap_classification = _json.loads(gap_classification_json)
+        result = build_summary(reordered_cv, jd_text, gap_classification, tone, existing_summary)
+        return result
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.post("/api/build-cover-letter")
+async def api_build_cover_letter(
+    reordered_cv: str = Form(...),
+    jd_text: str = Form(...),
+    gap_classification_json: str = Form(...),
+    summary: str = Form(...),
+    tone: str = Form(default="formal"),
+    length: str = Form(default="standard"),
+    personal_note: str = Form(default=""),
+):
+    try:
+        import json as _json
+        from backend.generators import build_cover_letter
+        gap_classification = _json.loads(gap_classification_json)
+        result = build_cover_letter(reordered_cv, jd_text, gap_classification, summary, tone, length, personal_note)
         return result
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))

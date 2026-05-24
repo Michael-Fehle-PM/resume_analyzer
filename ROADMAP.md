@@ -84,15 +84,51 @@ FastEmbed was chosen over the more widely-used `sentence-transformers` library f
 
 ---
 
-## v3 — Make the tool know the user
+## v2.1 — Boilerplate filtering
 *Status: planned*
 
-The theme for v3 is personalisation. v1 and v2 treat every analysis as stateless — the user re-uploads their CV every time, and the tool has no memory of previous sessions. v3 fixes that.
+**The problem v2.1 solves:**
+The semantic scoring engine penalises candidates for not matching generic JD filler — phrases like "strong communication skills", "fast-paced environment", "team player", and "competitive benefits" that appear in virtually every job posting and carry no real signal about role fit. When all identified gaps are boilerplate artifacts, a low baseline score is misleadingly pessimistic.
+
+**The fix:**
+A static boilerplate filter runs before requirement extraction, stripping common filler phrases from the JD before scoring. This means the semantic engine only measures match against requirements that actually differentiate the role — producing a more honest and actionable score.
+
+**Implementation:**
+A curated stoplist of ~50-100 common boilerplate phrases in , applied to the extracted requirements before embedding. Transparent, fast, and easy to extend. If the static list proves insufficient, v3 will evaluate a semantic boilerplate detection approach that self-calibrates against a boilerplate template embedding.
+
+**Expected impact:**
+Roles where gaps are predominantly boilerplate artifacts should see baseline scores rise by 10-15 points, bringing them into alignment with the AI Assessment scores and the gap classifier's recommendation.
+
+---
+
+## v3 — Generate supporting materials
+*Status: planned*
+
+The theme for v3 is output. v1 and v2 do the analytical work — scoring, gap classification, reordering. v3 turns that analysis into the materials the user actually submits: a tailored summary and a cover letter.
+
+Both are tied to a specific analysis run in v3. The user uploads a CV, runs the analysis, and then generates supporting materials from the results already in context. No separate uploads, no separate flow. Standalone versions — where the Summary Builder and Cover Letter Generator work without a prior analysis — are deferred to v4.
+
+**Summary builder:**
+Generates a tailored professional summary drawing from the submitted CV, the JD, and the gap classification results. Shows predicted ATS score impact before the user commits to the wording. Tone and length selectable.
+
+**Cover letter generator:**
+Draws from the submitted CV, JD, and gap classification. Addresses gaps proactively based on gap type — structural gaps handled differently from keyword gaps. Tone and length selectable. The user's personal connection to the role or company can be optionally added.
+
+---
+
+## v4 — Make the tool know the user
+*Status: planned*
+
+The theme for v4 is personalisation. v1–v3 treat every analysis as stateless. v4 introduces persistent user knowledge.
 
 **Skills bank:**
-Upload multiple CV versions once. The tool scrapes them, deduplicates, and builds a structured skills inventory stored in SQLite. From that point on, the user doesn't need to upload a CV to run an analysis — the bank already knows what they can credibly claim.
+A persistent career repository — upload CVs going back as far as you choose, and the bank accumulates every skill and capability you have ever demonstrated. The bank is cumulative; it remembers which CVs have already been processed and does not re-scrape duplicates.
 
-The bank operates on a deliberate principle: *the bank is what you can claim; the CV is where you demonstrated it.* Role boundaries are always respected. A skill earned at Optimizely will never be attributed to a Nasdaq bullet. The bank tells the tool what's available; the CV structure tells the truth about context.
+The bank operates on two deliberate principles:
+- *The bank is what you can claim; the CV is where you demonstrated it.* Role boundaries are always respected — skills stay attributed to the role where they were earned.
+- *Visibility rules apply.* The bank may know about roles not on the submitted CV. Those roles inform the confidence of a claim but cannot be cited directly. Only evidence visible on the submitted CV surfaces in output.
+
+The bank also identifies skill threads — capabilities that span multiple roles and deepen over time. Where those roles are visible on the CV, the thread can be referenced. Where they are not, the thread is a confidence signal for the tool, not a claim for the user to make.
 
 **Manual skill entry:**
 Not everything worth claiming appears on a CV. Skills built outside professional work — a language, a qualification, a tool learned independently — belong in the bank too. Manual entries require:
@@ -101,20 +137,17 @@ Not everything worth claiming appears on a CV. Skills built outside professional
 - Proficiency: expert / proficient / familiar
 - Whether it currently appears on a CV
 
-Non-professional skills surface in the Skills section of the CV only. They are never inserted into Professional Experience. This isn't just a design decision — it's an ethical one.
+Non-professional skills surface in the Skills section of the CV only. They are never inserted into Professional Experience. This is not just a design decision — it is an ethical one.
 
 **Gap analysis against the bank:**
 With the bank in place, gap analysis becomes more precise:
 - Skill in bank, on submitted CV → strong match
-- Skill in bank from a different CV version → keyword gap: worth adding
-- Skill manually added, not on any CV → omission gap: you have this but haven't documented it
-- Skill not in bank at all → structural gap: you genuinely don't have this
+- Skill in bank from a different CV version → keyword gap: worth adding to this CV
+- Skill manually added, not on any CV → omission gap: you have this but have not documented it anywhere
+- Skill not in bank at all → structural gap: you genuinely do not have this
 
-**Summary builder:**
-Generates a tailored professional summary drawing from the skills bank, previous summaries, and the JD. Shows predicted ATS score impact before the user commits to the wording.
-
-**Cover letter generator:**
-Draws from the skills bank, reordered CV, and JD. Addresses gaps proactively based on gap classification. Tone and length selectable.
+**Standalone Summary Builder and Cover Letter Generator:**
+In v3 these tools are tied to a specific analysis run. In v4 they become standalone — drawing from the skills bank directly, without requiring a prior analysis. The user can generate a summary or cover letter for any role at any time.
 
 ---
 

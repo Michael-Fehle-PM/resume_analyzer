@@ -17,8 +17,6 @@
     --radius: 8px; --radius-lg: 12px;
   }
   body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; font-size: 14px; background: var(--bg); color: var(--dark); line-height: 1.6; }
-  
-  /* Layout */
   .app-shell { display: flex; flex-direction: column; min-height: 100vh; }
   header { background: var(--navy); color: #fff; padding: 0 28px; display: flex; align-items: center; gap: 12px; height: 52px; }
   header h1 { font-size: 16px; font-weight: 500; letter-spacing: 0.02em; }
@@ -29,46 +27,35 @@
   nav a:hover { background: var(--bg); color: var(--dark); }
   nav a.active { color: var(--navy); font-weight: 500; border-left-color: var(--navy); background: var(--light-blue); }
   nav svg { width: 16px; height: 16px; flex-shrink: 0; }
-  .content { flex: 1; padding: 28px; max-width: 900px; }
+  .content { flex: 1; padding: 28px; max-width: 920px; }
   .panel { display: none; }
   .panel.active { display: block; }
-
-  /* Cards */
   .card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 20px 24px; margin-bottom: 16px; }
   .card-title { font-size: 13px; font-weight: 500; color: var(--navy); margin-bottom: 14px; display: flex; align-items: center; gap: 8px; }
-.card-title svg { width: 15px; height: 15px; flex-shrink: 0; }
-  
-  /* Form elements */
+  .card-title svg { width: 15px; height: 15px; flex-shrink: 0; }
   label.field-label { display: block; font-size: 11px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 6px; }
-  input[type=text], input[type=url], input[type=date], select, textarea {
-    width: 100%; padding: 8px 12px; border: 1px solid var(--border); border-radius: var(--radius);
-    font-size: 13px; font-family: inherit; background: var(--bg); color: var(--dark);
-    transition: border-color 0.15s; line-height: 1.5;
-  }
+  input[type=text], input[type=url], input[type=date], select, textarea { width: 100%; padding: 8px 12px; border: 1px solid var(--border); border-radius: var(--radius); font-size: 13px; font-family: inherit; background: var(--bg); color: var(--dark); transition: border-color 0.15s; line-height: 1.5; }
   input:focus, select:focus, textarea:focus { outline: none; border-color: var(--steel); background: #fff; }
   textarea { resize: vertical; }
   select { cursor: pointer; }
   .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  .grid3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; }
   .field { margin-bottom: 14px; }
-  
-  /* Buttons */
   .btn { display: inline-flex; align-items: center; gap: 6px; padding: 8px 16px; font-size: 13px; font-weight: 500; border-radius: var(--radius); cursor: pointer; transition: all 0.1s; border: 1px solid var(--border); background: var(--surface); color: var(--dark); font-family: inherit; }
   .btn:hover { background: var(--bg); }
   .btn:active { transform: scale(0.98); }
   .btn-primary { background: var(--navy); color: #fff; border-color: var(--navy); }
   .btn-primary:hover { background: #152f58; }
+  .btn-success { background: var(--success); color: #fff; border-color: var(--success); }
+  .btn-success:hover { opacity: 0.88; }
   .btn-sm { padding: 5px 12px; font-size: 12px; }
   .btn-row { display: flex; gap: 10px; margin-bottom: 16px; }
   .btn svg { width: 14px; height: 14px; }
-
-  /* File drop */
   .file-drop { border: 2px dashed var(--border); border-radius: var(--radius); padding: 28px; text-align: center; cursor: pointer; color: var(--muted); font-size: 13px; transition: all 0.15s; }
   .file-drop:hover, .file-drop.drag { border-color: var(--steel); background: var(--light-blue); color: var(--navy); }
   .file-drop svg { width: 24px; height: 24px; margin-bottom: 8px; display: block; margin-left: auto; margin-right: auto; }
   .or-divider { display: flex; align-items: center; gap: 10px; color: var(--muted); font-size: 12px; margin: 12px 0; }
   .or-divider::before, .or-divider::after { content: ''; flex: 1; height: 1px; background: var(--border); }
-
-  /* Progress */
   .progress-wrap { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 16px 20px; margin-bottom: 16px; display: none; }
   .progress-row { display: flex; align-items: center; gap: 12px; margin-bottom: 8px; }
   .spinner { width: 16px; height: 16px; border: 2px solid var(--border); border-top-color: var(--navy); border-radius: 50%; animation: spin 0.7s linear infinite; flex-shrink: 0; }
@@ -77,12 +64,39 @@
   .progress-bar { height: 4px; background: var(--border); border-radius: 2px; overflow: hidden; }
   .progress-fill { height: 100%; background: var(--navy); border-radius: 2px; transition: width 0.4s ease; width: 0%; }
 
-  /* Scores */
+  /* Score display */
   .score-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 16px; }
   .score-card { background: var(--light-blue); border-radius: var(--radius-lg); padding: 16px; text-align: center; }
+  .score-card.warn { background: var(--warn-bg); }
+  .score-card.danger { background: var(--danger-bg); }
   .score-val { font-size: 32px; font-weight: 600; color: var(--navy); line-height: 1; }
+  .score-card.warn .score-val { color: var(--warn); }
+  .score-card.danger .score-val { color: var(--danger); }
   .score-label { font-size: 11px; color: var(--steel); margin-top: 4px; font-weight: 500; text-transform: uppercase; letter-spacing: 0.04em; }
-  .summary-text { font-size: 13px; color: var(--mid); line-height: 1.7; padding: 14px 16px; background: var(--bg); border-radius: var(--radius); margin-bottom: 16px; border-left: 3px solid var(--steel); }
+
+  /* Before/after */
+  .before-after { display: grid; grid-template-columns: 1fr auto 1fr; gap: 12px; align-items: center; margin-bottom: 16px; }
+  .ba-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 16px; text-align: center; }
+  .ba-score { font-size: 36px; font-weight: 600; line-height: 1; margin-bottom: 4px; }
+  .ba-label { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.04em; }
+  .ba-arrow { font-size: 24px; color: var(--steel); text-align: center; }
+  .ba-delta { display: inline-block; font-size: 13px; font-weight: 600; padding: 3px 10px; border-radius: 20px; margin-top: 6px; }
+  .delta-pos { background: var(--success-bg); color: var(--success); }
+  .delta-neg { background: var(--danger-bg); color: var(--danger); }
+  .delta-zero { background: var(--bg); color: var(--muted); }
+
+  /* Credibility gap */
+  .credibility-banner { padding: 12px 16px; border-radius: var(--radius); font-size: 13px; margin-bottom: 16px; display: flex; align-items: flex-start; gap: 10px; }
+  .credibility-banner svg { width: 16px; height: 16px; flex-shrink: 0; margin-top: 1px; }
+  .credibility-ok { background: var(--success-bg); color: var(--success); }
+  .credibility-warn { background: var(--warn-bg); color: var(--warn); }
+
+  /* Gap type badges */
+  .gap-type { display: inline-block; font-size: 10px; padding: 2px 8px; border-radius: 20px; font-weight: 600; margin-left: 8px; }
+  .gt-structural { background: #FEE2E2; color: #991B1B; }
+  .gt-domain { background: #FEF3C7; color: #92400E; }
+  .gt-keyword { background: #DBEAFE; color: #1E40AF; }
+  .gt-seniority { background: #EDE9FE; color: #5B21B6; }
 
   /* Match items */
   .match-section { margin-bottom: 14px; }
@@ -97,15 +111,26 @@
   .mi-success { background: var(--success-bg); color: var(--success); }
   .mi-warn { background: var(--warn-bg); color: var(--warn); }
   .mi-danger { background: var(--danger-bg); color: var(--danger); }
-  .imp-badge { display: inline-block; font-size: 10px; padding: 1px 7px; border-radius: 20px; font-weight: 600; margin-left: 8px; vertical-align: middle; }
+  .imp-badge { display: inline-block; font-size: 10px; padding: 1px 7px; border-radius: 20px; font-weight: 600; margin-left: 8px; }
   .imp-high { background: #F7C1C1; color: #791F1F; }
   .imp-med { background: #FAC775; color: #633806; }
   .imp-low { background: #C0DD97; color: #27500A; }
 
-  /* Skills tags */
-  .skills-group { margin-bottom: 14px; }
-  .skills-group-label { font-size: 11px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 8px; }
-  .tag { display: inline-block; font-size: 12px; padding: 4px 10px; border-radius: 20px; background: var(--light-blue); color: var(--navy); margin: 3px; border: 1px solid #BDD0EA; }
+  /* Proceed gate */
+  .proceed-gate { background: var(--light-blue); border: 1px solid #BDD0EA; border-radius: var(--radius-lg); padding: 20px 24px; margin-bottom: 16px; }
+  .proceed-gate-title { font-size: 14px; font-weight: 500; color: var(--navy); margin-bottom: 8px; }
+  .proceed-gate-text { font-size: 13px; color: var(--mid); margin-bottom: 16px; line-height: 1.6; }
+  .proceed-gate-btns { display: flex; gap: 10px; }
+
+  /* FAQ */
+  .faq-item { border-bottom: 1px solid var(--border); }
+  .faq-item:last-child { border-bottom: none; }
+  .faq-q { width: 100%; text-align: left; padding: 14px 0; font-size: 13px; font-weight: 500; color: var(--dark); background: none; border: none; cursor: pointer; display: flex; justify-content: space-between; align-items: center; font-family: inherit; }
+  .faq-q:hover { color: var(--navy); }
+  .faq-q svg { width: 14px; height: 14px; flex-shrink: 0; transition: transform 0.2s; color: var(--muted); }
+  .faq-item.open .faq-q svg { transform: rotate(180deg); }
+  .faq-a { font-size: 13px; color: var(--mid); line-height: 1.7; padding-bottom: 14px; display: none; }
+  .faq-item.open .faq-a { display: block; }
 
   /* CV output */
   .cv-output-box { background: var(--bg); border: 1px solid var(--border); border-radius: var(--radius); padding: 16px; font-size: 12px; line-height: 1.7; white-space: pre-wrap; max-height: 400px; overflow-y: auto; font-family: "Courier New", monospace; color: var(--mid); }
@@ -133,16 +158,42 @@
   .empty-state { text-align: center; padding: 60px 24px; color: var(--muted); }
   .empty-state svg { width: 40px; height: 40px; margin-bottom: 12px; opacity: 0.3; display: block; margin-left: auto; margin-right: auto; }
   .empty-state p { font-size: 13px; }
-
-  /* Error */
   .error-box { background: var(--danger-bg); color: var(--danger); border: 1px solid #F09595; border-radius: var(--radius); padding: 12px 16px; font-size: 13px; margin-bottom: 14px; display: none; }
+  .summary-text { font-size: 13px; color: var(--mid); line-height: 1.7; padding: 14px 16px; background: var(--bg); border-radius: var(--radius); margin-bottom: 16px; border-left: 3px solid var(--steel); }
+  .section-divider { height: 1px; background: var(--border); margin: 20px 0; }
+  .step-label { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: var(--muted); margin-bottom: 12px; display: flex; align-items: center; gap: 8px; }
+  .step-label::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+
+  /* v3 Generator sections */
+  .generator-gate { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 20px 24px; margin-bottom: 16px; }
+  .generator-gate-title { font-size: 14px; font-weight: 500; color: var(--navy); margin-bottom: 6px; display: flex; align-items: center; gap: 8px; }
+  .generator-gate-title svg { width: 15px; height: 15px; }
+  .generator-gate-desc { font-size: 13px; color: var(--mid); margin-bottom: 16px; line-height: 1.6; }
+  .generator-controls { display: flex; gap: 10px; align-items: flex-end; flex-wrap: wrap; margin-bottom: 14px; }
+  .generator-controls .field { margin-bottom: 0; }
+  .generator-controls select { height: 34px; font-size: 12px; width: auto; min-width: 140px; }
+  .output-tabs { display: flex; gap: 0; border-bottom: 1px solid var(--border); margin-bottom: 14px; }
+  .output-tab { padding: 8px 16px; font-size: 12px; cursor: pointer; border-bottom: 2px solid transparent; color: var(--muted); background: none; border-top: none; border-left: none; border-right: none; font-family: inherit; }
+  .output-tab.active { color: var(--navy); border-bottom-color: var(--navy); font-weight: 500; }
+  .output-pane { display: none; }
+  .output-pane.active { display: block; }
+  .summary-option { background: var(--bg); border: 1px solid var(--border); border-radius: var(--radius); padding: 14px 16px; margin-bottom: 10px; font-size: 13px; line-height: 1.7; cursor: pointer; transition: border-color 0.15s; }
+  .summary-option:hover { border-color: var(--steel); }
+  .summary-option.selected { border-color: var(--navy); background: var(--light-blue); }
+  .summary-option-label { font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: var(--muted); margin-bottom: 6px; }
+  .ats-note { font-size: 11px; color: var(--muted); font-style: italic; margin-top: 8px; padding-top: 8px; border-top: 1px solid var(--border); }
+  .cover-letter-output { background: var(--bg); border: 1px solid var(--border); border-radius: var(--radius); padding: 16px; font-size: 13px; line-height: 1.8; white-space: pre-wrap; max-height: 500px; overflow-y: auto; }
+  .key-points { margin-top: 12px; }
+  .key-point { font-size: 12px; color: var(--mid); padding: 4px 0 4px 16px; position: relative; line-height: 1.5; }
+  .key-point::before { content: "•"; position: absolute; left: 4px; color: var(--steel); }
+  .personal-note-field { width: 100%; margin-bottom: 10px; }
 </style>
 </head>
 <body>
 <div class="app-shell">
 
 <header>
-  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:20px;height:20px"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14,2 14,8 20,8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10,9 9,9 8,9"/></svg>
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:20px;height:20px"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14,2 14,8 20,8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
   <h1>Resume Analyser</h1>
   <span class="subtitle">— AI-powered CV matching &amp; job tracker</span>
 </header>
@@ -157,11 +208,15 @@
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg>
       Job Tracker
     </a>
+    <a onclick="showPanel('faq', this)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+      FAQ
+    </a>
   </nav>
 
   <div class="content">
 
-    <!-- ── ANALYSER PANEL ───────────────────────────────────── -->
+    <!-- ── ANALYSER PANEL ─────────────────────────────────────── -->
     <div id="panel-analyser" class="panel active">
 
       <div class="card">
@@ -197,9 +252,9 @@
       <div id="error-box" class="error-box"></div>
 
       <div class="btn-row">
-        <button class="btn btn-primary" onclick="runAnalysis()" style="flex:1">
+        <button class="btn btn-primary" onclick="runSemanticScore()" style="flex:1">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-          Analyse match &amp; reorder CV
+          Analyse match
         </button>
         <button class="btn" onclick="runSkillsScrape()">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
@@ -218,7 +273,7 @@
       <div id="results"></div>
     </div>
 
-    <!-- ── TRACKER PANEL ───────────────────────────────────── -->
+    <!-- ── TRACKER PANEL ─────────────────────────────────────── -->
     <div id="panel-tracker" class="panel">
       <div class="tracker-header">
         <h2>Job Applications</h2>
@@ -227,12 +282,11 @@
           Add application
         </button>
       </div>
-
       <div id="app-form" class="card" style="display:none">
         <div class="card-title">New application</div>
         <div class="grid2">
           <div class="field"><label class="field-label">Role title *</label><input type="text" id="f-role" placeholder="Senior Product Manager"></div>
-          <div class="field"><label class="field-label">Company *</label><input type="text" id="f-company" placeholder="Nova Credit"></div>
+          <div class="field"><label class="field-label">Company *</label><input type="text" id="f-company" placeholder="Acme Corp"></div>
         </div>
         <div class="grid2">
           <div class="field"><label class="field-label">JD URL</label><input type="url" id="f-url" placeholder="https://…"></div>
@@ -257,8 +311,81 @@
           <button class="btn btn-sm" onclick="cancelForm()">Cancel</button>
         </div>
       </div>
-
       <div id="app-list"></div>
+    </div>
+
+    <!-- ── FAQ PANEL ─────────────────────────────────────────── -->
+    <div id="panel-faq" class="panel">
+      <div class="card">
+        <div class="card-title">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+          Frequently Asked Questions
+        </div>
+
+        <div class="faq-item">
+          <button class="faq-q" onclick="toggleFaq(this)">
+            What's an ATS score — and why does everyone on LinkedIn keep talking about it?
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6,9 12,15 18,9"/></svg>
+          </button>
+          <div class="faq-a">
+            There's no such thing as a universal ATS score — despite what every CV-writing influencer on LinkedIn would have you believe. Applicant Tracking Systems vary wildly: some count keywords, some parse structured data (job titles, dates, education), some use machine learning models trained on their own hiring outcomes, and some don't score at all — they just store and organise applications, leaving ranking entirely to the recruiter. Anyone claiming to give you "your ATS score" is either misinformed or selling something. What you can meaningfully measure is how well your CV's content maps to a specific job description — which is what this tool does.
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button class="faq-q" onclick="toggleFaq(this)">
+            So what does the Semantic Match Score actually measure?
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6,9 12,15 18,9"/></svg>
+          </button>
+          <div class="faq-a">
+            It measures how closely the <em>meaning</em> of your CV matches the requirements of the job description — regardless of exact wording. It uses a local AI model (FastEmbed) to compare the conceptual content of your CV against each requirement in the JD. This means it catches matches that keyword counting would miss: "owned data pipeline infrastructure" will score as strongly similar to "platform infrastructure ownership" even though the words are different. It runs entirely on your machine — no API call, no cost, same result every time.
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button class="faq-q" onclick="toggleFaq(this)">
+            Why are there two scores — Semantic and AI Assessment?
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6,9 12,15 18,9"/></svg>
+          </button>
+          <div class="faq-a">
+            They answer different questions. The Semantic Score is consistent and free — same inputs, same result every time. It's good at identifying whether your experience conceptually maps to what the JD is asking for. The AI Assessment (powered by Claude) is interpretive — it understands context and nuance that a similarity score can't capture. It can reason about why a gap is structural versus addressable, and give you a plain-English view of how a recruiter might read your application. Where they agree, confidence is high. Where they diverge, that's worth investigating.
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button class="faq-q" onclick="toggleFaq(this)">
+            What's the Credibility Gap?
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6,9 12,15 18,9"/></svg>
+          </button>
+          <div class="faq-a">
+            The difference between your Summary score and your Professional Experience score. A summary can claim almost anything — "proven track record", "experienced platform PM", "data-driven leader" — at zero cost. The Professional Experience section has to prove those claims with real roles, real companies, and ideally real metrics. A high Summary score paired with a low Experience score means your CV is making promises the evidence doesn't keep. That's a yellow flag for any experienced recruiter, even if the ATS doesn't catch it.
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button class="faq-q" onclick="toggleFaq(this)">
+            What do the gap types mean?
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6,9 12,15 18,9"/></svg>
+          </button>
+          <div class="faq-a">
+            <strong>Structural</strong> — the skill or experience genuinely doesn't exist in your background. No amount of reframing will close this gap. It's worth knowing early so you can decide whether the application is worth pursuing.<br><br>
+            <strong>Domain transfer</strong> — you have the underlying skill, but not in the specific domain the JD requires. Often addressable with targeted reframing: the experience is real, it just needs to be presented through the right lens.<br><br>
+            <strong>Keyword gap</strong> — the experience almost certainly exists in your background, but your CV uses different vocabulary to describe it. Addressable with targeted rewording.<br><br>
+            <strong>Seniority gap</strong> — the skill is present but at a different level than the role requires. Partially addressable depending on the size of the gap.
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button class="faq-q" onclick="toggleFaq(this)">
+            Does the tool store my CV or send it anywhere?
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6,9 12,15 18,9"/></svg>
+          </button>
+          <div class="faq-a">
+            The Semantic Score runs entirely locally — your CV text never leaves your machine for that step. The AI Assessment and CV reorder features send your CV and JD text to the Anthropic Claude API for processing. Anthropic's data handling policies apply to that data. The job tracker stores your application data locally in a SQLite database on your machine. Nothing is stored on any external server by this tool.
+          </div>
+        </div>
+
+      </div>
     </div>
 
   </div>
@@ -268,6 +395,12 @@
 <script>
 let editingId = null;
 let cvHtml = '', cvMd = '';
+let currentCvText = '', currentJdText = '';
+let currentGapClassification = {};
+let currentReorderedCv = '';
+let selectedSummary = '';
+let semanticGaps = [];
+let currentSemanticScore = 0;
 
 function showPanel(name, el) {
   document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
@@ -309,11 +442,9 @@ async function postBlob(url, body) {
   return res.blob();
 }
 
-// ── File handling ─────────────────────────────────────────────────────────────
+// ── File handling ──────────────────────────────────────────────────────────
 
-async function handleFileInput(e) {
-  await uploadFiles(Array.from(e.target.files));
-}
+async function handleFileInput(e) { await uploadFiles(Array.from(e.target.files)); }
 async function handleDrop(e) {
   e.preventDefault();
   document.getElementById('dropzone').classList.remove('drag');
@@ -335,12 +466,10 @@ async function uploadFiles(files) {
     setProgress(false);
   } catch(e) {
     showError('PDF extraction failed: ' + e.message);
-    dz.textContent = 'Click to upload PDF(s), or drag and drop';
+    dz.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:24px;height:24px;margin-bottom:8px;display:block;margin-left:auto;margin-right:auto"><polyline points="16,16 12,12 8,16"/><line x1="12" y1="12" x2="12" y2="21"/><path d="M20.39 18.39A5 5 0 0018 9h-1.26A8 8 0 103 16.3"/></svg>Click to upload PDF(s), or drag and drop`;
     setProgress(false);
   }
 }
-
-// ── JD fetch ──────────────────────────────────────────────────────────────────
 
 async function fetchJD() {
   const url = document.getElementById('jd-url').value.trim();
@@ -351,12 +480,12 @@ async function fetchJD() {
     document.getElementById('jd-text').value = data.text;
     setProgress(false);
   } catch(e) {
-    showError('Could not fetch URL — please paste the JD text manually. (' + e.message + ')');
+    showError('Could not fetch URL — please paste the JD text manually.');
     setProgress(false);
   }
 }
 
-// ── Skills scrape ─────────────────────────────────────────────────────────────
+// ── Skills scrape ──────────────────────────────────────────────────────────
 
 async function runSkillsScrape() {
   const cv = document.getElementById('cv-text').value.trim();
@@ -377,38 +506,234 @@ function renderSkills(data) {
   return `<div class="card">
     <div class="card-title">Skills &amp; capabilities extracted</div>
     ${data.categories.map(c => `
-      <div class="skills-group">
-        <div class="skills-group-label">${c.name}</div>
-        <div>${c.skills.map(s => `<span class="tag">${s}</span>`).join('')}</div>
+      <div style="margin-bottom:14px">
+        <div style="font-size:11px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:0.05em;margin-bottom:8px">${c.name}</div>
+        <div>${c.skills.map(s => `<span style="display:inline-block;font-size:12px;padding:4px 10px;border-radius:20px;background:var(--light-blue);color:var(--navy);margin:3px;border:1px solid #BDD0EA">${s}</span>`).join('')}</div>
       </div>`).join('')}
   </div>`;
 }
 
-// ── Full analysis ─────────────────────────────────────────────────────────────
+// ── Step 1: Semantic scoring ───────────────────────────────────────────────
 
-async function runAnalysis() {
+async function runSemanticScore() {
   const cv = document.getElementById('cv-text').value.trim();
   const jd = document.getElementById('jd-text').value.trim();
   if (!cv) { showError('Please add your CV text first.'); return; }
   if (!jd) { showError('Please add the job description first.'); return; }
-  document.getElementById('error-box').style.display = 'none';
-  document.getElementById('results').innerHTML = '';
+
+  currentCvText = cv;
+  currentJdText = jd;
   cvHtml = ''; cvMd = '';
 
+  document.getElementById('error-box').style.display = 'none';
+  document.getElementById('results').innerHTML = '';
+
+  setProgress(true, 'Running semantic match analysis… (this runs locally, no API cost)', 20);
+
   try {
-    setProgress(true, 'Analysing match against job description…', 20);
-    const analysis = await post('/api/analyse', { cv_text: cv, jd_text: jd });
-
-    setProgress(true, 'Reordering experience bullets…', 60);
-    const reordered = await post('/api/reorder-cv', { cv_text: cv, jd_text: jd });
-    cvHtml = reordered.html || '';
-    cvMd = reordered.markdown || '';
-
+    const semantic = await post('/api/semantic-score', { cv_text: cv, jd_text: jd });
     setProgress(false);
-    document.getElementById('results').innerHTML = renderAnalysis(analysis, cvMd);
+
+    currentSemanticScore = semantic.semantic_score;
+    semanticGaps = [...(semantic.experience_gaps || []), ...(semantic.summary_gaps || [])];
+
+    document.getElementById('results').innerHTML = renderSemanticResults(semantic);
+
+    // Step 2: Gap classification (small Claude call)
+    setTimeout(() => runGapClassification(semantic), 300);
+
   } catch(e) {
     setProgress(false);
-    showError('Analysis failed: ' + e.message);
+    showError('Semantic analysis failed: ' + e.message);
+  }
+}
+
+function scoreColour(score) {
+  if (score >= 75) return '';
+  if (score >= 55) return 'warn';
+  return 'danger';
+}
+
+function renderSemanticResults(s) {
+  const credBanner = s.credibility_flag
+    ? `<div class="credibility-banner credibility-warn">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+        <div><strong>Credibility gap detected</strong> — your Summary scores ${s.summary_score} but your Professional Experience scores ${s.experience_score}. Your CV may be making claims the experience section doesn't fully support. Consider strengthening the evidence in your experience bullets.</div>
+      </div>`
+    : `<div class="credibility-banner credibility-ok">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><polyline points="22,4 12,14.01 9,11.01"/></svg>
+        <div>Summary and Experience scores are consistent — your CV's claims are well supported by the evidence in your experience.</div>
+      </div>`;
+
+  return `
+    <div class="step-label">Step 1 — Semantic match score (local, free)</div>
+
+    <div class="score-grid">
+      <div class="score-card ${scoreColour(s.semantic_score)}">
+        <div class="score-val">${s.semantic_score}</div>
+        <div class="score-label">Semantic match</div>
+      </div>
+      <div class="score-card ${scoreColour(s.summary_score)}">
+        <div class="score-val">${s.summary_score}</div>
+        <div class="score-label">Summary score</div>
+      </div>
+      <div class="score-card ${scoreColour(s.experience_score)}">
+        <div class="score-val">${s.experience_score}</div>
+        <div class="score-label">Experience score</div>
+      </div>
+    </div>
+
+    ${credBanner}
+
+    <div id="gap-classification-results"></div>`;
+}
+
+// ── Step 2: Gap classification ─────────────────────────────────────────────
+
+async function runGapClassification(semantic) {
+  const gcEl = document.getElementById('gap-classification-results');
+  if (!gcEl) return;
+
+  gcEl.innerHTML = `<div class="card"><div style="display:flex;align-items:center;gap:10px;font-size:13px;color:var(--mid)"><div class="spinner"></div> Classifying gaps and predicting optimised score…</div></div>`;
+
+  const allGaps = [
+    ...(semantic.experience_gaps || []),
+    ...(semantic.summary_gaps || [])
+  ].slice(0, 12);
+
+  try {
+    const classification = await post('/api/classify-gaps', {
+      cv_text: currentCvText,
+      jd_text: currentJdText,
+      gaps_json: JSON.stringify(allGaps),
+      current_score: currentSemanticScore
+    });
+
+    gcEl.innerHTML = renderGapClassification(classification, currentSemanticScore);
+
+  } catch(e) {
+    gcEl.innerHTML = `<div class="error-box" style="display:block">Gap classification failed: ${e.message}</div>`;
+  }
+}
+
+function gapTypeBadge(type) {
+  const map = {
+    structural: ['gt-structural', 'Structural'],
+    domain_transfer: ['gt-domain', 'Domain transfer'],
+    keyword: ['gt-keyword', 'Keyword gap'],
+    seniority: ['gt-seniority', 'Seniority gap'],
+  };
+  const [cls, label] = map[type] || ['gt-structural', type];
+  return `<span class="gap-type ${cls}">${label}</span>`;
+}
+
+function renderGapClassification(c, beforeScore) {
+  const delta = c.predicted_score - beforeScore;
+  const deltaClass = delta > 0 ? 'delta-pos' : delta < 0 ? 'delta-neg' : 'delta-zero';
+  const deltaText = delta > 0 ? `+${delta}` : `${delta}`;
+
+  const baHtml = `
+    <div class="before-after">
+      <div class="ba-card">
+        <div class="ba-score" style="color:${beforeScore >= 75 ? 'var(--navy)' : beforeScore >= 55 ? 'var(--warn)' : 'var(--danger)'}">${beforeScore}</div>
+        <div class="ba-label">Current score</div>
+      </div>
+      <div class="ba-arrow">→</div>
+      <div class="ba-card">
+        <div class="ba-score" style="color:${c.predicted_score >= 75 ? 'var(--success)' : c.predicted_score >= 55 ? 'var(--warn)' : 'var(--danger)'}">${c.predicted_score}</div>
+        <div class="ba-label">Predicted after optimisation</div>
+        <div><span class="ba-delta ${deltaClass}">${deltaText} points</span></div>
+      </div>
+    </div>`;
+
+  const gapsHtml = (c.classified_gaps || []).map(g => `
+    <div class="match-item ${g.addressable ? 'mi-warn' : 'mi-danger'}">
+      <strong>${g.requirement}${gapTypeBadge(g.type)}</strong>
+      <span>${g.rationale}</span>
+    </div>`).join('');
+
+  const structuralCount = c.structural_count || 0;
+  const addressableCount = c.addressable_count || 0;
+
+  return `
+    <div class="step-label">Step 2 — Gap classification &amp; before/after prediction</div>
+
+    ${baHtml}
+
+    <div class="summary-text">
+      <strong>Recommendation:</strong> ${c.recommendation}<br>
+      <span style="font-size:12px;color:var(--muted);margin-top:4px;display:block">
+        ${addressableCount} addressable gap${addressableCount !== 1 ? 's' : ''} (keyword/domain/seniority) · ${structuralCount} structural gap${structuralCount !== 1 ? 's' : ''}
+      </span>
+    </div>
+
+    ${gapsHtml ? `<div class="card"><div class="card-title">Gap breakdown</div>${gapsHtml}</div>` : ''}
+
+    <div class="proceed-gate">
+      <div class="proceed-gate-title">Ready to proceed?</div>
+      <div class="proceed-gate-text">
+        If the predicted score looks worth pursuing, the next step runs a full qualitative AI assessment and generates a reordered CV with the most relevant experience bullets first.<br>
+        <span style="font-size:12px;color:var(--muted)">Estimated cost: ~$0.10–0.15 · Estimated time: 1–2 minutes</span>
+      </div>
+      <div class="proceed-gate-btns">
+        <button class="btn btn-success" onclick="runFullAnalysis()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><polyline points="22,4 12,14.01 9,11.01"/></svg>
+          Yes — run full analysis &amp; reorder CV
+        </button>
+        <button class="btn" onclick="document.getElementById('results').innerHTML=''">
+          No — start over
+        </button>
+      </div>
+    </div>`;
+}
+
+// ── Step 3: Full qualitative analysis ─────────────────────────────────────
+
+async function runFullAnalysis() {
+  const resultsEl = document.getElementById('results');
+  const existingContent = resultsEl.innerHTML;
+
+  // Append loading state below existing results
+  resultsEl.innerHTML = existingContent + `
+    <div id="full-analysis-loading" class="card" style="border-left:3px solid var(--navy)">
+      <div style="display:flex;align-items:center;gap:10px;font-size:13px;color:var(--mid)">
+        <div class="spinner"></div>
+        <div>
+          <div id="full-analysis-msg" style="font-weight:500;color:var(--dark)">Running qualitative assessment…</div>
+          <div style="font-size:11px;margin-top:2px">This takes 1–2 minutes — the server is making multiple AI calls</div>
+        </div>
+      </div>
+      <div class="progress-bar" style="margin-top:10px"><div class="progress-fill" id="full-analysis-fill" style="width:10%"></div></div>
+    </div>`;
+
+  function updateFullProgress(msg, pct) {
+    const msgEl = document.getElementById('full-analysis-msg');
+    const fillEl = document.getElementById('full-analysis-fill');
+    if (msgEl) msgEl.textContent = msg;
+    if (fillEl) fillEl.style.width = pct + '%';
+  }
+
+  try {
+    updateFullProgress('Running qualitative assessment…', 20);
+    const analysis = await post('/api/analyse', { cv_text: currentCvText, jd_text: currentJdText });
+
+    updateFullProgress('Reordering experience bullets…', 55);
+    const reordered = await post('/api/reorder-cv', { cv_text: currentCvText, jd_text: currentJdText });
+    cvHtml = reordered.html || '';
+    cvMd = reordered.markdown || '';
+    currentReorderedCv = cvMd;
+
+    document.getElementById('full-analysis-loading').remove();
+
+    // Append full results
+    resultsEl.innerHTML += renderFullAnalysis(analysis, cvMd);
+    resultsEl.innerHTML += renderSummaryGate();
+    // Scroll to new content
+    document.getElementById('summary-gate').scrollIntoView({behavior: 'smooth', block: 'start'});
+
+  } catch(e) {
+    document.getElementById('full-analysis-loading').remove();
+    resultsEl.innerHTML += `<div class="error-box" style="display:block">Full analysis failed: ${e.message}</div>`;
   }
 }
 
@@ -418,55 +743,60 @@ function impBadge(imp) {
   return '<span class="imp-badge imp-low">Low</span>';
 }
 
-function renderAnalysis(a, md) {
-  const matchItems = (arr, cls, keyProp, subProp) =>
-    arr.map(m => `<div class="match-item ${cls}"><strong>${m.item}${impBadge(m.importance)}</strong><span>${m[keyProp]}</span></div>`).join('') ||
+function renderFullAnalysis(a, md) {
+  const matchItems = (arr, cls, subProp) =>
+    (arr || []).map(m => `<div class="match-item ${cls}"><strong>${m.item}${impBadge(m.importance)}</strong><span>${m[subProp] || ''}</span></div>`).join('') ||
     `<div style="font-size:12px;opacity:0.7;padding:8px 0">None identified</div>`;
 
   return `
+    <div class="step-label">Step 3 — Full qualitative assessment (AI)</div>
+
     <div class="score-grid">
-      <div class="score-card"><div class="score-val">${a.overall_score}</div><div class="score-label">Overall match</div></div>
-      <div class="score-card"><div class="score-val">${a.keyword_score}</div><div class="score-label">Keyword match</div></div>
-      <div class="score-card"><div class="score-val">${a.experience_score}</div><div class="score-label">Experience match</div></div>
+      <div class="score-card ${scoreColour(a.overall_score)}"><div class="score-val">${a.overall_score}</div><div class="score-label">Overall match</div></div>
+      <div class="score-card ${scoreColour(a.keyword_score)}"><div class="score-val">${a.keyword_score}</div><div class="score-label">Keyword match</div></div>
+      <div class="score-card ${scoreColour(a.experience_score)}"><div class="score-val">${a.experience_score}</div><div class="score-label">Experience match</div></div>
     </div>
+
     ${a.summary ? `<div class="summary-text">${a.summary}</div>` : ''}
+
     <div class="card">
       <div class="match-section">
         <div class="match-section-title t-success">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><polyline points="22,4 12,14.01 9,11.01"/></svg>
           Strong matches
         </div>
-        ${matchItems(a.matches || [], 'mi-success', 'evidence', 'evidence')}
+        ${matchItems(a.matches, 'mi-success', 'evidence')}
       </div>
       <div class="match-section">
         <div class="match-section-title t-warn">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
           Partial matches
         </div>
-        ${matchItems(a.partials || [], 'mi-warn', 'gap', 'gap')}
+        ${matchItems(a.partials, 'mi-warn', 'gap')}
       </div>
       <div class="match-section">
         <div class="match-section-title t-danger">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
           Gaps
         </div>
-        ${matchItems(a.gaps || [], 'mi-danger', 'reason', 'reason')}
+        ${matchItems(a.gaps, 'mi-danger', 'reason')}
       </div>
     </div>
+
     <div class="card">
-      <div class="card-title">Reordered CV preview</div>
+      <div class="card-title">Reordered CV — download</div>
       <div class="dl-row">
         <button class="btn btn-sm" onclick="downloadHTML()">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7,10 12,15 17,10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-          Download HTML
+          HTML (print-ready)
         </button>
         <button class="btn btn-sm" onclick="downloadMD()">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7,10 12,15 17,10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-          Download Markdown
+          Markdown
         </button>
         <button class="btn btn-sm btn-primary" onclick="downloadDOCX()">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7,10 12,15 17,10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-          Download .docx
+          .docx
         </button>
       </div>
       <div class="cv-output-box">${(md || '').substring(0, 2500)}${md && md.length > 2500 ? '\n\n…(truncated — download for full version)' : ''}</div>
@@ -474,20 +804,18 @@ function renderAnalysis(a, md) {
 }
 
 function downloadHTML() {
-  if (!cvHtml) { showError('Run analysis first.'); return; }
+  if (!cvHtml) { showError('Run full analysis first.'); return; }
   triggerDownload(cvHtml, 'resume_tailored.html', 'text/html');
 }
 function downloadMD() {
-  if (!cvMd) { showError('Run analysis first.'); return; }
+  if (!cvMd) { showError('Run full analysis first.'); return; }
   triggerDownload(cvMd, 'resume_tailored.md', 'text/markdown');
 }
 async function downloadDOCX() {
-  const cv = document.getElementById('cv-text').value.trim();
-  const jd = document.getElementById('jd-text').value.trim();
-  if (!cv || !jd) { showError('CV and JD are required for .docx generation.'); return; }
+  if (!currentCvText || !currentJdText) { showError('CV and JD are required.'); return; }
   setProgress(true, 'Generating .docx…', 50);
   try {
-    const blob = await postBlob('/api/download-docx', { cv_text: cv, jd_text: jd });
+    const blob = await postBlob('/api/download-docx', { cv_text: currentCvText, jd_text: currentJdText });
     triggerDownload(blob, 'resume_tailored.docx', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document');
     setProgress(false);
   } catch(e) {
@@ -504,7 +832,203 @@ function triggerDownload(content, filename, type) {
   a.click();
 }
 
-// ── Job Tracker ───────────────────────────────────────────────────────────────
+// ── v3 Summary Builder ────────────────────────────────────────────────────────
+
+function renderSummaryGate() {
+  return `
+    <div class="step-label">Step 4 — Build a tailored summary (AI)</div>
+    <div class="generator-gate" id="summary-gate">
+      <div class="generator-gate-title">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+        Summary Builder
+      </div>
+      <div class="generator-gate-desc">
+        Generate a tailored professional summary from the reordered CV and JD. Three lengths to choose from. Built from the optimised CV — not the raw version.
+        <span style="font-size:12px;color:var(--muted);display:block;margin-top:4px">Estimated cost: ~$0.02 · Estimated time: 10–15 seconds</span>
+      </div>
+      <div class="generator-controls">
+        <div class="field">
+          <label class="field-label">Tone</label>
+          <select id="summary-tone">
+            <option value="professional">Professional</option>
+            <option value="confident">Confident & direct</option>
+            <option value="conversational">Conversational</option>
+          </select>
+        </div>
+        <button class="btn btn-primary btn-sm" onclick="runSummaryBuilder()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+          Build summary
+        </button>
+      </div>
+      <div id="summary-output"></div>
+    </div>`;
+}
+
+async function runSummaryBuilder() {
+  if (!currentReorderedCv) { showError('Run full analysis first.'); return; }
+  const tone = document.getElementById('summary-tone').value;
+  const outputEl = document.getElementById('summary-output');
+  outputEl.innerHTML = `<div style="display:flex;align-items:center;gap:10px;font-size:13px;color:var(--mid);padding:10px 0"><div class="spinner"></div> Building summary options…</div>`;
+
+  try {
+    const result = await post('/api/build-summary', {
+      reordered_cv: currentReorderedCv,
+      jd_text: currentJdText,
+      gap_classification_json: JSON.stringify(currentGapClassification),
+      tone,
+      existing_summary: '',
+    });
+
+    outputEl.innerHTML = renderSummaryOutput(result);
+
+  } catch(e) {
+    outputEl.innerHTML = `<div class="error-box" style="display:block">Summary builder failed: ${e.message}</div>`;
+  }
+}
+
+function renderSummaryOutput(r) {
+  const options = [
+    { key: 'short', label: 'Short — 2 sentences' },
+    { key: 'standard', label: 'Standard — 3 sentences' },
+    { key: 'full', label: 'Full — 4 sentences' },
+  ];
+
+  const optionsHtml = options.map(o => `
+    <div class="summary-option" id="summary-opt-${o.key}" onclick="selectSummary('${o.key}', this)">
+      <div class="summary-option-label">${o.label}</div>
+      ${r[o.key] || 'Not generated'}
+    </div>`).join('');
+
+  return `
+    <div style="margin-bottom:8px;font-size:12px;color:var(--muted)">Click a summary to select it, then proceed to the cover letter.</div>
+    ${optionsHtml}
+    ${r.ats_note ? `<div class="ats-note"><strong>ATS note:</strong> ${r.ats_note}</div>` : ''}
+    <div id="cover-letter-gate" style="display:none;margin-top:16px">${renderCoverLetterGate()}</div>`;
+}
+
+function selectSummary(key, el) {
+  document.querySelectorAll('.summary-option').forEach(o => o.classList.remove('selected'));
+  el.classList.add('selected');
+  selectedSummary = el.querySelector(':not(.summary-option-label)') 
+    ? el.textContent.replace(el.querySelector('.summary-option-label').textContent, '').trim()
+    : el.textContent.trim();
+  document.getElementById('cover-letter-gate').style.display = 'block';
+  document.getElementById('cover-letter-gate').scrollIntoView({behavior: 'smooth', block: 'nearest'});
+}
+
+// ── v3 Cover Letter Generator ──────────────────────────────────────────────
+
+function renderCoverLetterGate() {
+  return `
+    <div class="step-label">Step 5 — Generate cover letter (AI)</div>
+    <div class="generator-gate">
+      <div class="generator-gate-title">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+        Cover Letter Generator
+      </div>
+      <div class="generator-gate-desc">
+        Generates a cover letter from the reordered CV, selected summary, JD, and gap classification. Addresses gaps proactively based on their type.
+        <span style="font-size:12px;color:var(--muted);display:block;margin-top:4px">Estimated cost: ~$0.03 · Estimated time: 15–20 seconds</span>
+      </div>
+      <div class="generator-controls">
+        <div class="field">
+          <label class="field-label">Tone</label>
+          <select id="cl-tone">
+            <option value="formal">Formal & polished</option>
+            <option value="confident">Confident & direct</option>
+            <option value="conversational">Warm & conversational</option>
+          </select>
+        </div>
+        <div class="field">
+          <label class="field-label">Length</label>
+          <select id="cl-length">
+            <option value="short">Short — 3 paragraphs</option>
+            <option value="standard" selected>Standard — 4 paragraphs</option>
+            <option value="full">Full — 5 paragraphs</option>
+          </select>
+        </div>
+      </div>
+      <div class="field">
+        <label class="field-label">Personal connection (optional)</label>
+        <textarea id="cl-personal" class="personal-note-field" rows="2" placeholder="e.g. I used this product myself, I know someone at the company, I have a personal connection to the mission…"></textarea>
+      </div>
+      <button class="btn btn-primary btn-sm" onclick="runCoverLetterGenerator()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+        Generate cover letter
+      </button>
+      <div id="cover-letter-output" style="margin-top:14px"></div>
+    </div>`;
+}
+
+async function runCoverLetterGenerator() {
+  if (!selectedSummary) { showError('Please select a summary first.'); return; }
+  if (!currentReorderedCv) { showError('Run full analysis first.'); return; }
+
+  const tone = document.getElementById('cl-tone').value;
+  const length = document.getElementById('cl-length').value;
+  const personalNote = document.getElementById('cl-personal').value.trim();
+  const outputEl = document.getElementById('cover-letter-output');
+
+  outputEl.innerHTML = `<div style="display:flex;align-items:center;gap:10px;font-size:13px;color:var(--mid);padding:10px 0"><div class="spinner"></div> Generating cover letter…</div>`;
+
+  try {
+    const result = await post('/api/build-cover-letter', {
+      reordered_cv: currentReorderedCv,
+      jd_text: currentJdText,
+      gap_classification_json: JSON.stringify(currentGapClassification),
+      summary: selectedSummary,
+      tone,
+      length,
+      personal_note: personalNote,
+    });
+
+    outputEl.innerHTML = renderCoverLetterOutput(result);
+
+  } catch(e) {
+    outputEl.innerHTML = `<div class="error-box" style="display:block">Cover letter generation failed: ${e.message}</div>`;
+  }
+}
+
+function renderCoverLetterOutput(r) {
+  const keyPointsHtml = (r.key_points || []).map(p => `<div class="key-point">${p}</div>`).join('');
+
+  return `
+    ${r.subject_line ? `<div style="font-size:12px;color:var(--muted);margin-bottom:10px"><strong>Suggested subject line:</strong> ${r.subject_line}</div>` : ''}
+    <div class="cover-letter-output" id="cl-text">${r.cover_letter || ''}</div>
+    ${keyPointsHtml ? `<div class="key-points" style="margin-top:12px"><div style="font-size:11px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:0.05em;margin-bottom:6px">Key arguments</div>${keyPointsHtml}</div>` : ''}
+    <div class="dl-row" style="margin-top:12px">
+      <button class="btn btn-sm" onclick="copyText('cl-text')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+        Copy to clipboard
+      </button>
+      <button class="btn btn-sm" onclick="downloadCoverLetter('${(r.cover_letter || '').replace(/'/g, "\'")}')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7,10 12,15 17,10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        Download .txt
+      </button>
+    </div>`;
+}
+
+function copyText(elId) {
+  const el = document.getElementById(elId);
+  if (!el) return;
+  navigator.clipboard.writeText(el.textContent).then(() => {
+    showError('Copied to clipboard.');
+    setTimeout(() => document.getElementById('error-box').style.display = 'none', 2000);
+  });
+}
+
+function downloadCoverLetter(text) {
+  triggerDownload(text, 'cover_letter.txt', 'text/plain');
+}
+
+// ── FAQ ────────────────────────────────────────────────────────────────────
+
+function toggleFaq(btn) {
+  const item = btn.closest('.faq-item');
+  item.classList.toggle('open');
+}
+
+// ── Job Tracker ────────────────────────────────────────────────────────────
 
 const STATUS_LABELS = { applied:'Applied', interview:'Interview', offer:'Offer', rejected:'Rejected', 'no-response':'No response', withdrawn:'Withdrawn' };
 const STATUS_CLASSES = { applied:'s-applied', interview:'s-interview', offer:'s-offer', rejected:'s-rejected', 'no-response':'s-no-response', withdrawn:'s-withdrawn' };
@@ -514,10 +1038,7 @@ async function loadApps() {
   const apps = await res.json();
   const el = document.getElementById('app-list');
   if (!apps.length) {
-    el.innerHTML = `<div class="empty-state">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg>
-      <p>No applications yet. Add your first one above.</p>
-    </div>`;
+    el.innerHTML = `<div class="empty-state"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg><p>No applications yet.</p></div>`;
     return;
   }
   el.innerHTML = apps.map(a => `
@@ -530,7 +1051,7 @@ async function loadApps() {
           ${a.notes ? `<div class="app-notes">${a.notes}</div>` : ''}
         </div>
         <div class="app-actions">
-          <button class="btn btn-sm" onclick="editApp('${a.id}', ${JSON.stringify(a).replace(/"/g,'&quot;')})">
+          <button class="btn btn-sm" onclick='editApp("${a.id}", ${JSON.stringify(a).replace(/'/g,"&#39;")})'>
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
           </button>
           <button class="btn btn-sm" onclick="deleteApp('${a.id}')">

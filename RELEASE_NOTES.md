@@ -131,3 +131,70 @@ These threshold changes were informed by running real applications through the t
 - A moderate fit application (JustWorks) scored 65 with no gaps under v2.0, correctly reclassified as diffuse domain mismatch under v2.0.1 with a predicted ceiling of 82
 
 The tool is now better at distinguishing between "you don't have the skills" and "you have the skills but the vocabulary doesn't match."
+
+---
+
+# v3.0 — Supporting Materials Generator
+
+## What's new
+
+### Summary Builder (Step 4)
+Appears after the full analysis completes. Generates three versions of a tailored professional summary from the reordered CV and JD — short (2 sentences), standard (3 sentences), and full (4 sentences). Each version:
+- Leads with the candidate's strongest positioning for the specific role
+- Incorporates JD keywords naturally
+- Avoids age signals
+- Includes an ATS note explaining which keywords were included and why
+
+The user selects their preferred version before proceeding to the cover letter.
+
+### Cover Letter Generator (Step 5)
+Appears after the user selects a summary. Generates a cover letter drawing from the reordered CV, selected summary, JD, and gap classification. Features:
+- Tone selector: Professional / Confident & Direct / Conversational
+- Length selector: Short (3 paragraphs) / Standard (4 paragraphs) / Full (5 paragraphs)
+- Optional personal connection field — mission alignment, personal experience with the company's product, referral context etc.
+- Addresses gaps proactively based on gap type — structural gaps handled differently from keyword gaps
+- Copy to clipboard or download as .txt
+- Suggested email subject line included
+- Key arguments summary shown below the letter
+
+Both generators are tied to the current analysis run. They operate on the reordered CV, not the raw uploaded CV. Standalone versions (without requiring a prior analysis) are planned for v4.
+
+### Improved .docx output
+Complete rewrite of the docx generator to match a professional CV template:
+- Calibri font throughout
+- Teal section headers (#1D6E72) with bottom border
+- Job title lines: bold title | mid-colour company, date right-aligned via tab stop
+- Sub-labels: 9pt italic mid-colour
+- Symbol font bullet character matching Word default
+- Areas of Expertise rendered as single pipe-separated line — no bullets
+- Skills section: bold label, left tab at 1620 twips, no colons
+- Education: bold degree, tab at 3150 twips, plain institution — no bullets, no separator character
+- Contact line: email, LinkedIn, and GitHub rendered as clickable blue hyperlinks
+- Spacing matched precisely to template measurements
+
+### Test scripts
+Two zero-cost test scripts for the most fragile parts of the codebase:
+- `test_docx.py` — tests the docx generator with hardcoded markdown; no API calls; outputs `test_output.docx` for visual inspection
+- `test_reorder.py` — tests the reorder_cv function with a mocked API response; no tokens spent; confirms function logic and output structure
+
+### Developer utilities
+- `activate.bat` — double-click to open a terminal with `.venv312` already active
+
+## Technical changes
+- New: `backend/generators.py` — Summary Builder and Cover Letter Generator
+- New: `test_docx.py`, `test_reorder.py`, `activate.bat`
+- Updated: `main.py` — two new endpoints: `/api/build-summary` and `/api/build-cover-letter`
+- Updated: `backend/analyser.py` — complete `generate_docx` rewrite; strict markdown formatting rules in reorder prompt; split two-call reorder confirmed
+- Updated: `frontend/templates/index.html` — Steps 4 and 5 added; appears only after Step 3 completes
+
+## Known issues addressed in v3.0
+- Double-brace escaping bug in `reorder_cv` caused `unhashable type: dict` error — fixed
+- Model string reverted to old dated value — corrected to `claude-sonnet-4-6`
+- `max_tokens` reset to 1000 in generated files — corrected to 4096 throughout
+
+## Known issues for v3.1
+- Selected summary not carried through to CV download — download still uses original summary
+- Progress indicator scrolls off screen once all steps are visible
+- No tone selector explanations for Summary Builder or Cover Letter Generator
+- Download file naming is generic — not role/company specific
+- Full accordion step flow with sticky headers not yet implemented — see ROADMAP.md for full spec
