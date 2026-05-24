@@ -105,7 +105,7 @@ A new FAQ tab addresses the "ATS score" myth directly and explains what each sco
 
 ---
 
-# v2.0.1 — Scoring Calibration
+# v2.1 — Scoring Calibration
 
 ## What's fixed
 
