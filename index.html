@@ -785,7 +785,10 @@ function renderFullAnalysis(a, md) {
 
     <div class="card">
       <div class="card-title">Reordered CV — download</div>
-      <div class="dl-row">
+      <div id="summary-notice" style="font-size:12px;color:var(--warn);background:var(--warn-bg);padding:8px 12px;border-radius:var(--radius);margin-bottom:10px">
+        ⚠ This download uses the summary from your original CV. Complete Step 4 to include a tailored summary.
+      </div>
+      <div class="dl-row" style="align-items:center;flex-wrap:wrap">
         <button class="btn btn-sm" onclick="downloadHTML()">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7,10 12,15 17,10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
           HTML (print-ready)
@@ -794,18 +797,31 @@ function renderFullAnalysis(a, md) {
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7,10 12,15 17,10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
           Markdown
         </button>
-        <button class="btn btn-sm btn-primary" onclick="downloadDOCX()">
+        <button class="btn btn-sm btn-primary" id="docx-btn" onclick="downloadDOCX()">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7,10 12,15 17,10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
           .docx
         </button>
+        <span id="docx-status" style="display:none;font-size:12px;color:var(--mid);display:flex;align-items:center;gap:6px">
+          <span class="spinner" style="width:12px;height:12px;border-width:1.5px"></span>
+          Generating… 1–2 minutes
+        </span>
       </div>
       <div class="cv-output-box">${(md || '').substring(0, 2500)}${md && md.length > 2500 ? '\n\n…(truncated — download for full version)' : ''}</div>
     </div>`;
 }
 
-function downloadHTML() {
-  if (!cvHtml) { showError('Run full analysis first.'); return; }
-  triggerDownload(cvHtml, 'resume_tailored.html', 'text/html');
+async function downloadHTML() {
+  if (!currentCvText || !currentJdText) { showError('Run full analysis first.'); return; }
+  const btn = event.target.closest('button');
+  if (btn) { btn.disabled = true; btn.textContent = 'Generating…'; }
+  try {
+    const data = await post('/api/download-html', { cv_text: currentCvText, jd_text: currentJdText });
+    triggerDownload(data.html, 'resume_tailored.html', 'text/html');
+  } catch(e) {
+    showError('HTML generation failed: ' + e.message);
+  } finally {
+    if (btn) { btn.disabled = false; btn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7,10 12,15 17,10"/><line x1="12" y1="15" x2="12" y2="3"/></svg> HTML (print-ready)'; }
+  }
 }
 function downloadMD() {
   if (!cvMd) { showError('Run full analysis first.'); return; }
@@ -813,13 +829,28 @@ function downloadMD() {
 }
 async function downloadDOCX() {
   if (!currentCvText || !currentJdText) { showError('CV and JD are required.'); return; }
-  setProgress(true, 'Generating .docx…', 50);
+  // Show inline status next to the button
+  const btn = document.getElementById('docx-btn');
+  const status = document.getElementById('docx-status');
+  if (btn) btn.disabled = true;
+  if (status) { status.style.display = 'flex'; status.scrollIntoView({behavior: 'smooth', block: 'nearest'}); }
   try {
-    const blob = await postBlob('/api/download-docx', { cv_text: currentCvText, jd_text: currentJdText });
-    triggerDownload(blob, 'resume_tailored.docx', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document');
-    setProgress(false);
+    const body = { cv_text: currentCvText, jd_text: currentJdText };
+    if (selectedSummary) body.selected_summary = selectedSummary;
+    const fd = new FormData();
+    for (const [k,v] of Object.entries(body)) fd.append(k, v);
+    const res = await fetch('/api/download-docx', { method: 'POST', body: fd });
+    if (!res.ok) throw new Error('Download failed');
+    const disposition = res.headers.get('Content-Disposition') || '';
+    const fnMatch = disposition.match(/filename=([^;]+)/);
+    const filename = fnMatch ? fnMatch[1].replace(/["']/g, '').trim() : 'resume_tailored.docx';
+    const blob = await res.blob();
+    triggerDownload(blob, filename, 'application/vnd.openxmlformats-officedocument.wordprocessingml.document');
+    if (status) status.style.display = 'none';
+    if (btn) btn.disabled = false;
   } catch(e) {
-    setProgress(false);
+    if (status) status.style.display = 'none';
+    if (btn) btn.disabled = false;
     showError('DOCX generation failed: ' + e.message);
   }
 }
@@ -850,9 +881,9 @@ function renderSummaryGate() {
         <div class="field">
           <label class="field-label">Tone</label>
           <select id="summary-tone">
-            <option value="professional">Professional</option>
-            <option value="confident">Confident & direct</option>
-            <option value="conversational">Conversational</option>
+            <option value="professional">Professional — formal, achievement-led; suits corporate and financial roles</option>
+            <option value="confident">Confident & Direct — assertive, leads with impact; suits senior and fast-moving roles</option>
+            <option value="conversational">Conversational — warm, human register; suits mission-driven companies</option>
           </select>
         </div>
         <button class="btn btn-primary btn-sm" onclick="runSummaryBuilder()">
@@ -912,6 +943,13 @@ function selectSummary(key, el) {
   selectedSummary = el.querySelector(':not(.summary-option-label)') 
     ? el.textContent.replace(el.querySelector('.summary-option-label').textContent, '').trim()
     : el.textContent.trim();
+  // Update summary notice to show selected summary will be included
+  const notice = document.getElementById('summary-notice');
+  if (notice) {
+    notice.style.background = 'var(--success-bg)';
+    notice.style.color = 'var(--success)';
+    notice.textContent = '✓ Your selected summary will be included in the .docx download.';
+  }
   document.getElementById('cover-letter-gate').style.display = 'block';
   document.getElementById('cover-letter-gate').scrollIntoView({behavior: 'smooth', block: 'nearest'});
 }
@@ -934,9 +972,9 @@ function renderCoverLetterGate() {
         <div class="field">
           <label class="field-label">Tone</label>
           <select id="cl-tone">
-            <option value="formal">Formal & polished</option>
-            <option value="confident">Confident & direct</option>
-            <option value="conversational">Warm & conversational</option>
+            <option value="professional">Professional — formal, achievement-led; suits corporate and financial roles</option>
+            <option value="confident">Confident & Direct — assertive, leads with impact; suits senior and fast-moving roles</option>
+            <option value="conversational">Conversational — warm, human register; suits mission-driven companies</option>
           </select>
         </div>
         <div class="field">

@@ -19,7 +19,7 @@ These aren't bugs. They're the kind of things you only discover by using the too
 ---
 
 ## v1 — Ship something useful
-*Status: shipped*
+*Status: complete*
 
 A working CV analyser and job tracker. Upload a CV, paste a JD, get a scored match analysis with matches, partials, and gaps. Download a reordered CV. Track applications in a persistent local database.
 
@@ -37,7 +37,7 @@ A working CV analyser and job tracker. Upload a CV, paste a JD, get a scored mat
 ---
 
 ## v2 — Make the scores trustworthy
-*Status: shipped*
+*Status: planned*
 
 The theme for v2 is trust. A score you can't explain is a score you can't act on.
 
@@ -85,7 +85,7 @@ FastEmbed was chosen over the more widely-used `sentence-transformers` library f
 ---
 
 ## v2.1 — Boilerplate filtering
-*Status: shipped*
+*Status: planned*
 
 **The problem v2.1 solves:**
 The semantic scoring engine penalises candidates for not matching generic JD filler — phrases like "strong communication skills", "fast-paced environment", "team player", and "competitive benefits" that appear in virtually every job posting and carry no real signal about role fit. When all identified gaps are boilerplate artifacts, a low baseline score is misleadingly pessimistic.
@@ -102,7 +102,7 @@ Roles where gaps are predominantly boilerplate artifacts should see baseline sco
 ---
 
 ## v3 — Generate supporting materials
-*Status: shipped*
+*Status: planned*
 
 The theme for v3 is output. v1 and v2 do the analytical work — scoring, gap classification, reordering. v3 turns that analysis into the materials the user actually submits: a tailored summary and a cover letter.
 

@@ -86,14 +86,79 @@ CV:
     )
     markdown = md_message.content[0].text.strip()
 
+    # HTML is generated on demand only (see generate_html) to save API costs
+    return {"html": "", "markdown": markdown}
+
+
+def generate_html(cv_text: str, jd_text: str) -> str:
+    """Generate HTML version of reordered CV on demand."""
+    base_prompt = f"""You are an expert CV writer. Rewrite the CV below with experience bullets reordered within each role so the most relevant to the job description appear first. Do not add, invent, or remove any experience — only reorder bullets within each existing role. Keep all other sections unchanged. Keep bullet points to 20 words maximum.
+
+JOB DESCRIPTION:
+{jd_text}
+
+CV:
+{cv_text}"""
+
     html_message = client.messages.create(
         model=MODEL,
         max_tokens=4096,
         messages=[{"role": "user", "content": base_prompt + "\n\nReturn ONLY a complete, self-contained, print-ready HTML CV with clean professional styling, navy and white colour scheme, no external dependencies. No preamble, no explanation, just the HTML."}]
     )
-    html = html_message.content[0].text.strip()
+    return html_message.content[0].text.strip()
 
-    return {"html": html, "markdown": markdown}
+
+def extract_file_metadata(cv_text: str, jd_text: str) -> dict:
+    """Extract name, company, and position from CV and JD for file naming."""
+    prompt = (
+        "Extract the following from the CV and job description. "
+        "Return ONLY this JSON, no preamble:\n"
+        '{"first_name": "candidate first name", "last_name": "candidate last name", '
+        '"company": "hiring company name", '
+        '"position": "job title being applied for (2-4 words max, no punctuation)"}\n\n'
+        f"CV (first 500 chars):\n{cv_text[:500]}\n\n"
+        f"JD (first 300 chars):\n{jd_text[:300]}"
+    )
+    message = client.messages.create(
+        model=MODEL,
+        max_tokens=200,
+        messages=[{"role": "user", "content": prompt}]
+    )
+    raw = message.content[0].text
+    try:
+        clean = re.sub(r"```json|```", "", raw).strip()
+        match = re.search(r'\{.*\}', clean, re.DOTALL)
+        data = json.loads(match.group(0) if match else clean)
+        def camel(s):
+            # Capitalise each word, strip non-alphanumeric, preserve common acronyms
+            acronyms = {'pm', 'vp', 'cto', 'ceo', 'coo', 'ai', 'ml', 'api', 'saas', 'b2b', 'b2c', 'ux', 'ui'}
+            words = re.sub(r'[^a-zA-Z0-9 ]', ' ', str(s).strip()).split()
+            result = ''.join(w.upper() if w.lower() in acronyms else w.capitalize() for w in words if w)
+            return result[:25]
+        fn = camel(data.get('first_name', ''))
+        ln = camel(data.get('last_name', ''))
+        co = camel(data.get('company', ''))
+        po = camel(data.get('position', ''))
+        base = f"{fn}{ln}_{co}_{po}" if fn else "resume_tailored"
+        return {
+            "cv_filename": f"{base}.docx",
+            "cl_filename": f"{base}_CoverLetter.txt",
+        }
+    except Exception:
+        return {"cv_filename": "resume_tailored.docx", "cl_filename": "cover_letter.txt"}
+
+
+def substitute_summary(cv_text: str, new_summary: str) -> str:
+    """Replace the Professional Summary section in CV text with a new one."""
+    pattern = r'(##\s*PROFESSIONAL SUMMARY\s*\n)(.*?)(\n##\s)'
+    replacement = r'\g<1>' + new_summary + r'\n\g<3>'
+    result = re.sub(pattern, replacement, cv_text, flags=re.DOTALL | re.IGNORECASE)
+    if result == cv_text:
+        lines = cv_text.split('\n')
+        insert_at = min(3, len(lines))
+        lines.insert(insert_at, f'\n## PROFESSIONAL SUMMARY\n\n{new_summary}\n')
+        result = '\n'.join(lines)
+    return result
 
 
 def generate_docx(cv_text: str, jd_text: str) -> bytes:

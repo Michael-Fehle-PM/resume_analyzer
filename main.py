@@ -108,21 +108,34 @@ async def api_reorder_cv(cv_text: str = Form(...), jd_text: str = Form(...)):
         result = reorder_cv(cv_text, jd_text)
         return result
     except Exception as e:
-        import traceback
-        traceback.print_exc()
         raise HTTPException(status_code=500, detail=str(e))
 
 
 @app.post("/api/download-docx")
-async def api_download_docx(cv_text: str = Form(...), jd_text: str = Form(...)):
+async def api_download_docx(
+    cv_text: str = Form(...),
+    jd_text: str = Form(...),
+    selected_summary: str = Form(default=""),
+):
     try:
-        docx_bytes = generate_docx(cv_text, jd_text)
+        from backend.analyser import substitute_summary, extract_file_metadata
+        # Substitute selected summary if provided
+        final_cv = substitute_summary(cv_text, selected_summary) if selected_summary.strip() else cv_text
+        docx_bytes = generate_docx(final_cv, jd_text)
+        # Get filename
+        try:
+            meta = extract_file_metadata(cv_text, jd_text)
+            filename = meta.get("cv_filename", "resume_tailored.docx")
+        except Exception:
+            filename = "resume_tailored.docx"
         return Response(
             content=docx_bytes,
             media_type="application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-            headers={"Content-Disposition": "attachment; filename=resume_tailored.docx"}
+            headers={"Content-Disposition": f"attachment; filename={filename}"}
         )
     except Exception as e:
+        import traceback
+        traceback.print_exc()
         raise HTTPException(status_code=500, detail=str(e))
 
 
@@ -152,6 +165,30 @@ async def api_classify_gaps(
         result = classify_gaps(cv_text, jd_text, gaps, current_score)
         return result
     except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.post("/api/download-html")
+async def api_download_html(cv_text: str = Form(...), jd_text: str = Form(...)):
+    try:
+        from backend.analyser import generate_html
+        html = generate_html(cv_text, jd_text)
+        return {"html": html}
+    except Exception as e:
+        import traceback
+        traceback.print_exc()
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.post("/api/download-html")
+async def api_download_html(cv_text: str = Form(...), jd_text: str = Form(...)):
+    try:
+        from backend.analyser import generate_html
+        html = generate_html(cv_text, jd_text)
+        return {"html": html}
+    except Exception as e:
+        import traceback
+        traceback.print_exc()
         raise HTTPException(status_code=500, detail=str(e))
 
 
